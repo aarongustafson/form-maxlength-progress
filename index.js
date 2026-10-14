@@ -1,1 +1,1 @@
-export { ComponentNameElement } from './COMPONENT-NAME.js';
+export { FormMaxlengthProgressElement } from './form-maxlength-progress.js';

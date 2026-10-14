@@ -1,7 +1,7 @@
 {
-	"name": "@aarongustafson/COMPONENT-NAME",
+	"name": "@aarongustafson/form-maxlength-progress",
 	"version": "0.0.1",
-	"description": "COMPONENT_DESCRIPTION",
+	"description": "Indicates a user’s progress toward the limit of a field’s maxlength value.",
 	"keywords": [
 		"html",
 		"custom element",
@@ -9,27 +9,27 @@
 	],
 	"author": "Aaron Gustafson <aaron@easy-designs.net> (https://www.aaron-gustafson.com/)",
 	"license": "MIT",
-	"homepage": "https://github.com/aarongustafson/COMPONENT-NAME#readme",
+	"homepage": "https://github.com/aarongustafson/form-maxlength-progress#readme",
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/aarongustafson/COMPONENT-NAME.git"
+		"url": "git+https://github.com/aarongustafson/form-maxlength-progress.git"
 	},
 	"bugs": {
-		"url": "https://github.com/aarongustafson/COMPONENT-NAME/issues"
+		"url": "https://github.com/aarongustafson/form-maxlength-progress/issues"
 	},
 	"type": "module",
 	"main": "index.js",
-	"module": "COMPONENT-NAME.js",
+	"module": "form-maxlength-progress.js",
 	"customElements": "custom-elements.json",
-	"types": "COMPONENT-NAME.d.ts",
+	"types": "form-maxlength-progress.d.ts",
 	"exports": {
 		".": {
-			"types": "./COMPONENT-NAME.d.ts",
+			"types": "./form-maxlength-progress.d.ts",
 			"import": "./index.js"
 		},
-		"./COMPONENT-NAME.js": {
-			"types": "./COMPONENT-NAME.d.ts",
-			"import": "./COMPONENT-NAME.js"
+		"./form-maxlength-progress.js": {
+			"types": "./form-maxlength-progress.d.ts",
+			"import": "./form-maxlength-progress.js"
 		},
 		"./define.js": {
 			"import": "./define.js"
@@ -37,8 +37,8 @@
 		"./custom-elements.json": "./custom-elements.json"
 	},
 	"files": [
-		"COMPONENT-NAME.js",
-		"COMPONENT-NAME.d.ts",
+		"form-maxlength-progress.js",
+		"form-maxlength-progress.d.ts",
 		"define.js",
 		"index.js",
 		"custom-elements.json",
@@ -50,7 +50,6 @@
 	},
 	"packageManager": "npm@11.15.0",
 	"scripts": {
-		"setup": "node scripts/setup.js",
 		"test": "vitest",
 		"test:ui": "vitest --ui",
 		"test:run": "vitest run",

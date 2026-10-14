@@ -1,6 +1,8 @@
-import { ComponentNameElement } from './COMPONENT-NAME.js';
+import { FormMaxlengthProgressElement } from './form-maxlength-progress.js';
 
-export function defineComponentName(tagName = 'COMPONENT-NAME') {
+export function defineFormMaxlengthProgress(
+	tagName = 'form-maxlength-progress',
+) {
 	const hasWindow = typeof window !== 'undefined';
 	const registry = hasWindow ? window.customElements : undefined;
 
@@ -9,10 +11,10 @@ export function defineComponentName(tagName = 'COMPONENT-NAME') {
 	}
 
 	if (!registry.get(tagName)) {
-		registry.define(tagName, ComponentNameElement);
+		registry.define(tagName, FormMaxlengthProgressElement);
 	}
 
 	return true;
 }
 
-defineComponentName();
+defineFormMaxlengthProgress();

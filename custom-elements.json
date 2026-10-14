@@ -1,32 +1,242 @@
 {
 	"schemaVersion": "1.0.0",
-	"readme": "",
+	"readme": "README.md",
 	"modules": [
 		{
 			"kind": "javascript-module",
-			"path": "COMPONENT-NAME.js",
+			"path": "form-maxlength-progress.js",
 			"declarations": [
 				{
 					"kind": "class",
-					"description": "COMPONENT_DESCRIPTION",
-					"name": "ComponentNameElement",
-					"members": [],
-					"events": [],
-					"attributes": [],
-					"superclass": {
-						"name": "HTMLElement"
-					},
-					"tagName": "COMPONENT-NAME",
+					"description": "Indicates a user’s progress toward the limit of an associated field’s maxlength value.",
+					"name": "FormMaxlengthProgressElement",
+					"members": [
+						{
+							"kind": "field",
+							"name": "htmlFor",
+							"type": { "text": "string" },
+							"attribute": "for"
+						},
+						{
+							"kind": "field",
+							"name": "counter",
+							"type": { "text": "string" },
+							"attribute": "counter"
+						},
+						{
+							"kind": "field",
+							"name": "progress",
+							"type": { "text": "string" },
+							"attribute": "progress"
+						},
+						{
+							"kind": "field",
+							"name": "proximityValues",
+							"type": { "text": "string" },
+							"attribute": "proximity-values"
+						},
+						{
+							"kind": "field",
+							"name": "proximity",
+							"readonly": true,
+							"type": { "text": "string" },
+							"attribute": "proximity"
+						},
+						{
+							"kind": "field",
+							"name": "overrun",
+							"type": { "text": "boolean" },
+							"attribute": "overrun"
+						},
+						{
+							"kind": "field",
+							"name": "label",
+							"type": { "text": "string" },
+							"attribute": "label"
+						},
+						{
+							"kind": "field",
+							"name": "labelZero",
+							"type": { "text": "string | null" },
+							"attribute": "label-zero"
+						},
+						{
+							"kind": "field",
+							"name": "labelOne",
+							"type": { "text": "string | null" },
+							"attribute": "label-one"
+						},
+						{
+							"kind": "field",
+							"name": "labelTwo",
+							"type": { "text": "string | null" },
+							"attribute": "label-two"
+						},
+						{
+							"kind": "field",
+							"name": "labelFew",
+							"type": { "text": "string | null" },
+							"attribute": "label-few"
+						},
+						{
+							"kind": "field",
+							"name": "labelMany",
+							"type": { "text": "string | null" },
+							"attribute": "label-many"
+						},
+						{
+							"kind": "field",
+							"name": "overrunLabel",
+							"type": { "text": "string" },
+							"attribute": "overrun-label"
+						},
+						{
+							"kind": "field",
+							"name": "overrunLabelZero",
+							"type": { "text": "string | null" },
+							"attribute": "overrun-label-zero"
+						},
+						{
+							"kind": "field",
+							"name": "overrunLabelOne",
+							"type": { "text": "string | null" },
+							"attribute": "overrun-label-one"
+						},
+						{
+							"kind": "field",
+							"name": "overrunLabelTwo",
+							"type": { "text": "string | null" },
+							"attribute": "overrun-label-two"
+						},
+						{
+							"kind": "field",
+							"name": "overrunLabelFew",
+							"type": { "text": "string | null" },
+							"attribute": "overrun-label-few"
+						},
+						{
+							"kind": "field",
+							"name": "overrunLabelMany",
+							"type": { "text": "string | null" },
+							"attribute": "overrun-label-many"
+						}
+					],
+					"attributes": [
+						{
+							"name": "for",
+							"description": "ID reference for an eligible textarea or text-like input.",
+							"type": { "text": "string" }
+						},
+						{
+							"name": "counter",
+							"description": "ID reference for a unique Light DOM descendant whose text displays the remaining count.",
+							"type": { "text": "string" }
+						},
+						{
+							"name": "progress",
+							"description": "ID reference for a unique Light DOM descendant progress element.",
+							"type": { "text": "string" }
+						},
+						{
+							"name": "label",
+							"description": "Other-category accessible label template containing {remaining}.",
+							"type": { "text": "string" },
+							"default": "{remaining} characters remaining"
+						},
+						{
+							"name": "label-zero",
+							"description": "Optional Intl.PluralRules zero-category label template.",
+							"type": { "text": "string" }
+						},
+						{
+							"name": "label-one",
+							"description": "Optional Intl.PluralRules one-category label template.",
+							"type": { "text": "string" },
+							"default": "{remaining} character remaining"
+						},
+						{
+							"name": "label-two",
+							"description": "Optional Intl.PluralRules two-category label template.",
+							"type": { "text": "string" }
+						},
+						{
+							"name": "label-few",
+							"description": "Optional Intl.PluralRules few-category label template.",
+							"type": { "text": "string" }
+						},
+						{
+							"name": "label-many",
+							"description": "Optional Intl.PluralRules many-category label template.",
+							"type": { "text": "string" }
+						},
+						{
+							"name": "proximity-values",
+							"description": "Comma-separated lower-bound token/percentage stops and an optional final overrun token.",
+							"type": { "text": "string" },
+							"default": "far 0%, close 75%, target 100%, overrun"
+						},
+						{
+							"name": "proximity",
+							"description": "Current component-managed proximity token.",
+							"type": { "text": "string" }
+						},
+						{
+							"name": "overrun",
+							"description": "Enables overrun only when the exact value is true; fields above the maximum receive aria-invalid=true.",
+							"type": { "text": "\"true\" | \"false\"" },
+							"default": "false"
+						},
+						{
+							"name": "overrun-label",
+							"description": "Other-category accessible label template used above maxlength.",
+							"type": { "text": "string" },
+							"default": "{remaining} characters over the max length."
+						},
+						{
+							"name": "overrun-label-zero",
+							"description": "Optional overrun zero-category label template.",
+							"type": { "text": "string" }
+						},
+						{
+							"name": "overrun-label-one",
+							"description": "Optional overrun one-category label template.",
+							"type": { "text": "string" },
+							"default": "{remaining} character over the max length."
+						},
+						{
+							"name": "overrun-label-two",
+							"description": "Optional overrun two-category label template.",
+							"type": { "text": "string" }
+						},
+						{
+							"name": "overrun-label-few",
+							"description": "Optional overrun few-category label template.",
+							"type": { "text": "string" }
+						},
+						{
+							"name": "overrun-label-many",
+							"description": "Optional overrun many-category label template.",
+							"type": { "text": "string" }
+						}
+					],
+					"slots": [
+						{
+							"name": "",
+							"description": "Authored counter, progress, and surrounding content."
+						}
+					],
+					"superclass": { "name": "HTMLElement" },
+					"tagName": "form-maxlength-progress",
 					"customElement": true
 				}
 			],
 			"exports": [
 				{
 					"kind": "js",
-					"name": "ComponentNameElement",
+					"name": "FormMaxlengthProgressElement",
 					"declaration": {
-						"name": "ComponentNameElement",
-						"module": "COMPONENT-NAME.js"
+						"name": "FormMaxlengthProgressElement",
+						"module": "form-maxlength-progress.js"
 					}
 				}
 			]

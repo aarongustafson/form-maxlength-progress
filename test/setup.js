@@ -1,14 +1,14 @@
 import { beforeAll } from 'vitest';
-import { ComponentNameElement } from '../COMPONENT-NAME.js';
+import { FormMaxlengthProgressElement } from '../form-maxlength-progress.js';
 
-const elementName = 'COMPONENT-NAME'.toLowerCase();
+const elementName = 'form-maxlength-progress'.toLowerCase();
 
 // Define the custom element before tests run
 beforeAll(() => {
 	if (!customElements.get(elementName)) {
-		customElements.define(elementName, ComponentNameElement);
+		customElements.define(elementName, FormMaxlengthProgressElement);
 	}
 
 	// Make the class available globally for testing static methods
-	globalThis.ComponentNameElement = ComponentNameElement;
+	globalThis.FormMaxlengthProgressElement = FormMaxlengthProgressElement;
 });
