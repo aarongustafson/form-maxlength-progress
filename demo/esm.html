@@ -3,10 +3,24 @@
 	<head>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
-		<title>COMPONENT-NAME via esm.sh</title>
+		<title>form-maxlength-progress via esm.sh</title>
 		<link rel="stylesheet" href="./styles.css" />
 		<style>
-			/* Demo-specific styles */
+			form-maxlength-progress:not(:defined) {
+				display: none;
+			}
+
+			[data-form-maxlength-progress-generated-counter] {
+				font-variant-numeric: tabular-nums;
+			}
+
+			form-maxlength-progress[proximity='close'] {
+				color: darkorange;
+			}
+
+			form-maxlength-progress[proximity='target'] {
+				color: crimson;
+			}
 		</style>
 	</head>
 	<body>
@@ -16,15 +30,20 @@
 			registers it manually.
 		</p>
 
-		<COMPONENT-NAME>
-			<p>Replace this markup once you customize COMPONENT-NAME.</p>
-		</COMPONENT-NAME>
+		<label for="esm-message">Message</label>
+		<textarea id="esm-message" maxlength="100"></textarea>
+		<form-maxlength-progress
+			for="esm-message"
+		></form-maxlength-progress>
 
 		<script type="module">
-			import { ComponentNameElement } from 'https://esm.sh/@aarongustafson/COMPONENT-NAME@0.0.1/COMPONENT-NAME.js?bundle&target=es2022';
+			import { FormMaxlengthProgressElement } from 'https://esm.sh/@aarongustafson/form-maxlength-progress@0.0.1/form-maxlength-progress.js?bundle&target=es2022';
 
-			if (!customElements.get('COMPONENT-NAME')) {
-				customElements.define('COMPONENT-NAME', ComponentNameElement);
+			if (!customElements.get('form-maxlength-progress')) {
+				customElements.define(
+					'form-maxlength-progress',
+					FormMaxlengthProgressElement,
+				);
 			}
 		</script>
 	</body>

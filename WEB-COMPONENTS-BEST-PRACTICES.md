@@ -177,24 +177,26 @@ set items(value) {
 
 ## Implementation Notes
 
-### Template Placeholders
+### Component-specific choices
 
-This is a template repository. Before use:
+`form-maxlength-progress` keeps authored UI in Light DOM and uses a small
+shadow root only for host display rules and the default slot. Its field and
+authored hooks are ID references so the component can sit separately from the
+field without wrapping or moving form markup.
 
-1. Run `npm run setup` to replace placeholders
-2. Or manually replace:
-   - `COMPONENT-NAME` → your element name (e.g., `my-button`)
-   - `ComponentNameElement` → your class name (e.g., `MyButtonElement`)
-   - `COMPONENT_DESCRIPTION` → your description
+The component preserves author-owned attributes and restores them when it is
+disconnected, reassociated, or has overrun disabled.
 
 ### Testing
 
 The test file demonstrates all the best practices:
 
-- Shadow DOM creation
-- Hidden attribute support
-- Property/attribute reflection
-- Lazy property upgrade
+- field association and cleanup
+- accessible counter and progress behavior
+- localized plural labels
+- custom proximity parsing
+- reversible overrun behavior
+- dynamic DOM and attribute synchronization
 
 Run tests with:
 

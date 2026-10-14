@@ -3,89 +3,181 @@
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
-		<title>&lt;COMPONENT-NAME&gt; Web Component Demo</title>
+		<title>&lt;form-maxlength-progress&gt; Web Component Demo</title>
 		<link rel="stylesheet" href="./styles.css" />
 		<style>
-			/* Demo-specific styles */
+			form-maxlength-progress:not(:defined) {
+				display: none;
+			}
+
+			form-maxlength-progress {
+				margin-block-start: 0.5rem;
+			}
+
+			[data-form-maxlength-progress-generated-counter] {
+				font-variant-numeric: tabular-nums;
+			}
+
+			form-maxlength-progress[proximity='close'],
+			form-maxlength-progress[proximity='warning'] {
+				color: darkorange;
+			}
+
+			form-maxlength-progress[proximity='target'],
+			form-maxlength-progress[proximity='overrun'],
+			form-maxlength-progress[proximity='exceeded'] {
+				color: crimson;
+				font-weight: bold;
+			}
+
+			textarea[aria-invalid='true'],
+			input[aria-invalid='true'] {
+				border-color: crimson;
+				outline-color: crimson;
+			}
+
+			.custom-progress {
+				align-items: center;
+				display: flex;
+				gap: 0.75rem;
+				max-inline-size: 26rem;
+			}
+
+			.custom-progress progress {
+				flex: 1;
+			}
 		</style>
 	</head>
 	<body>
 		<header>
-			<h1>&lt;COMPONENT-NAME&gt;</h1>
+			<h1>&lt;form-maxlength-progress&gt;</h1>
 			<p>
-				COMPONENT_DESCRIPTION See the
+				Indicates a user’s progress toward the limit of a field’s
+				<code>maxlength</code> value. See the
 				<a
-					href="https://github.com/aarongustafson/COMPONENT-NAME/blob/main/README.md"
+					href="https://github.com/aarongustafson/form-maxlength-progress/blob/main/README.md"
 					>README</a
 				>
-				for installation and API documentation.
+				for complete API documentation.
 			</p>
 		</header>
 
 		<main>
-			<!-- Basic Example -->
 			<section>
-				<h2>Basic Example</h2>
-				<p>A simple demonstration of the component.</p>
-
+				<h2>Default counter</h2>
 				<div class="demo-section">
-					<h3>Basic Usage</h3>
-					<p>Description of this example.</p>
+					<p>
+						The component creates a numeric counter and associates
+						it with the field through
+						<code>aria-describedby</code>. The generated
+						<code
+							>[data-form-maxlength-progress-generated-counter]</code
+						>
+						element remains in Light DOM as a supported styling
+						hook.
+					</p>
 					<div class="code-demo-pair">
-						<pre><code>&lt;COMPONENT-NAME&gt;
-  &lt;p&gt;Content goes here&lt;/p&gt;
-&lt;/COMPONENT-NAME&gt;</code></pre>
+						<pre><code>&lt;textarea id="message" maxlength="120"&gt;&lt;/textarea&gt;
+&lt;form-maxlength-progress for="message"&gt;
+&lt;/form-maxlength-progress&gt;</code></pre>
 						<div class="demo">
-							<COMPONENT-NAME>
-								<p>Content goes here</p>
-							</COMPONENT-NAME>
+							<label for="message">Message</label>
+							<textarea
+								id="message"
+								maxlength="120"
+								rows="5"
+							></textarea>
+							<form-maxlength-progress
+								for="message"
+							></form-maxlength-progress>
 						</div>
 					</div>
 				</div>
 			</section>
 
-			<!-- Example with Attributes -->
 			<section>
-				<h2>Example with Attributes</h2>
-				<p>Demonstrating component attributes.</p>
-
+				<h2>Authored counter and progress</h2>
 				<div class="demo-section">
-					<h3>Using Attributes</h3>
-					<p>Description of this example with attributes.</p>
+					<p>
+						The host references unique Light DOM descendants using
+						<code>counter</code> and <code>progress</code>.
+					</p>
 					<div class="code-demo-pair">
-						<pre><code>&lt;COMPONENT-NAME example-attribute="value"&gt;
-  &lt;p&gt;Content with attributes&lt;/p&gt;
-&lt;/COMPONENT-NAME&gt;</code></pre>
+						<pre><code>&lt;form-maxlength-progress
+  for="summary"
+  counter="summary-count"
+  progress="summary-meter"
+  proximity-values="safe 0%, warning 60%, target 100%"
+&gt;
+  &lt;span&gt;&lt;strong id="summary-count"&gt;&lt;/strong&gt; left&lt;/span&gt;
+  &lt;progress id="summary-meter"&gt;&lt;/progress&gt;
+&lt;/form-maxlength-progress&gt;</code></pre>
 						<div class="demo">
-							<COMPONENT-NAME example-attribute="value">
-								<p>Content with attributes</p>
-							</COMPONENT-NAME>
+							<label for="summary">Summary</label>
+							<input id="summary" maxlength="80" />
+							<form-maxlength-progress
+								class="custom-progress"
+								for="summary"
+								counter="summary-count"
+								progress="summary-meter"
+								proximity-values="safe 0%, warning 60%, target 100%"
+							>
+								<span
+									><strong id="summary-count"></strong>
+									left</span
+								>
+								<progress id="summary-meter"></progress>
+							</form-maxlength-progress>
 						</div>
 					</div>
 				</div>
 			</section>
 
-			<!-- API Reference -->
-			<section class="api-reference">
-				<h2>API Reference</h2>
-				<p>
-					For complete documentation of attributes, events, and
-					browser support, see the
-					<a
-						href="https://github.com/aarongustafson/COMPONENT-NAME/blob/main/README.md"
-						>README</a
-					>.
-				</p>
+			<section>
+				<h2>Localized overrun</h2>
+				<div class="demo-section">
+					<p>
+						Overrun removes native enforcement while the component
+						is active. The visible count can become negative while
+						the accessible label describes the positive amount over.
+						The field receives <code>aria-invalid="true"</code>
+						until its value returns within the limit.
+					</p>
+					<div class="code-demo-pair">
+						<pre><code>&lt;form-maxlength-progress
+  for="short-note"
+  overrun="true"
+  label="{remaining} characters available"
+  label-one="{remaining} character available"
+  overrun-label="{remaining} characters too many"
+  overrun-label-one="{remaining} character too many"
+&gt;&lt;/form-maxlength-progress&gt;</code></pre>
+						<div class="demo">
+							<label for="short-note">Short note</label>
+							<textarea
+								id="short-note"
+								maxlength="40"
+								rows="4"
+							></textarea>
+							<form-maxlength-progress
+								for="short-note"
+								overrun="true"
+								label="{remaining} characters available"
+								label-one="{remaining} character available"
+								overrun-label="{remaining} characters too many"
+								overrun-label-one="{remaining} character too many"
+							></form-maxlength-progress>
+						</div>
+					</div>
+				</div>
 			</section>
 		</main>
 
 		<footer>
 			<p>
 				Made with ❤️ by
-				<a href="https://github.com/aarongustafson">Aaron Gustafson</a>.
-				View the source on
-				<a href="https://github.com/aarongustafson/COMPONENT-NAME"
-					>GitHub</a
+				<a href="https://github.com/aarongustafson"
+					>Aaron Gustafson</a
 				>.
 			</p>
 		</footer>
