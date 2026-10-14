@@ -1,6 +1,6 @@
 {
 	"name": "@aarongustafson/form-maxlength-progress",
-	"version": "0.0.1",
+	"version": "1.0.0",
 	"description": "Indicates a user’s progress toward the limit of a field’s maxlength value.",
 	"keywords": [
 		"html",
