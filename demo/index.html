@@ -46,6 +46,34 @@
 			.custom-progress progress {
 				flex: 1;
 			}
+
+			.maxlength-field {
+				max-inline-size: 26rem;
+			}
+
+			.maxlength-field input,
+			.maxlength-field textarea {
+				box-sizing: border-box;
+				max-width: none;
+			}
+
+			.maxlength-field form-maxlength-progress {
+				display: block;
+				text-align: end;
+			}
+
+			.maxlength-field:has(form-maxlength-progress[proximity='target'])
+				:is(input, textarea),
+			.maxlength-field:has(form-maxlength-progress[proximity='overrun'])
+				:is(input, textarea) {
+				border-width: 3px;
+			}
+
+			.sample-text {
+				display: block;
+				margin-block: 0.5rem 1rem;
+				user-select: all;
+			}
 		</style>
 	</head>
 	<body>
@@ -67,9 +95,10 @@
 				<h2>Default counter</h2>
 				<div class="demo-section">
 					<p>
-						The component creates a numeric counter and associates
-						it with the field through
-						<code>aria-describedby</code>. The generated
+						The component associates a static limit description with
+						the field through <code>aria-describedby</code>. The
+						changing visible text remains separate to avoid
+						per-keystroke description announcements. The generated
 						<code
 							>[data-form-maxlength-progress-generated-counter]</code
 						>
@@ -81,16 +110,65 @@
 &lt;form-maxlength-progress for="message"&gt;
 &lt;/form-maxlength-progress&gt;</code></pre>
 						<div class="demo">
-							<label for="message">Message</label>
+							<div class="maxlength-field">
+								<label for="message">Message</label>
+								<textarea
+									id="message"
+									maxlength="120"
+									rows="5"
+								></textarea>
+								<form-maxlength-progress
+									for="message"
+								></form-maxlength-progress>
+							</div>
+						</div>
+					</div>
+				</div>
+			</section>
+
+			<section>
+				<h2>Paste and autofill checks</h2>
+				<div class="demo-section">
+					<p>
+						These fields exercise real browser input paths rather
+						than buttons that imitate them. Copy the sample into the
+						first field. Use saved address data in the second field
+						to check browser autofill.
+					</p>
+					<div class="demo">
+						<div class="maxlength-field">
+							<label for="paste-check">Paste check</label>
+							<code class="sample-text"
+								>This sample jumps beyond the forty character
+								limit.</code
+							>
 							<textarea
-								id="message"
-								maxlength="120"
-								rows="5"
+								id="paste-check"
+								maxlength="40"
+								rows="3"
 							></textarea>
 							<form-maxlength-progress
-								for="message"
+								for="paste-check"
+								overrun="true"
 							></form-maxlength-progress>
 						</div>
+
+						<form autocomplete="on">
+							<div class="maxlength-field">
+								<label for="address-check"
+									>Street address autofill check</label
+								>
+								<input
+									id="address-check"
+									name="street-address"
+									autocomplete="street-address"
+									maxlength="40"
+								/>
+								<form-maxlength-progress
+									for="address-check"
+								></form-maxlength-progress>
+							</div>
+						</form>
 					</div>
 				</div>
 			</section>
@@ -176,9 +254,7 @@
 		<footer>
 			<p>
 				Made with ❤️ by
-				<a href="https://github.com/aarongustafson"
-					>Aaron Gustafson</a
-				>.
+				<a href="https://github.com/aarongustafson">Aaron Gustafson</a>.
 			</p>
 		</footer>
 

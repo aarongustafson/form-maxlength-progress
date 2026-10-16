@@ -30,6 +30,19 @@ export class FormMaxlengthProgressElement extends HTMLElement {
 	/** Current component-managed proximity token. */
 	get proximity(): string;
 
+	get description(): string;
+	set description(value: string | null | undefined);
+	get descriptionZero(): string | null;
+	set descriptionZero(value: string | null | undefined);
+	get descriptionOne(): string | null;
+	set descriptionOne(value: string | null | undefined);
+	get descriptionTwo(): string | null;
+	set descriptionTwo(value: string | null | undefined);
+	get descriptionFew(): string | null;
+	set descriptionFew(value: string | null | undefined);
+	get descriptionMany(): string | null;
+	set descriptionMany(value: string | null | undefined);
+
 	get overrun(): boolean;
 	set overrun(value: boolean);
 
@@ -58,6 +71,11 @@ export class FormMaxlengthProgressElement extends HTMLElement {
 	set overrunLabelFew(value: string | null | undefined);
 	get overrunLabelMany(): string | null;
 	set overrunLabelMany(value: string | null | undefined);
+
+	get limitReachedLabel(): string;
+	set limitReachedLabel(value: string | null | undefined);
+	get limitExceededLabel(): string;
+	set limitExceededLabel(value: string | null | undefined);
 
 	render(): void;
 }

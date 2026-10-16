@@ -8,6 +8,7 @@ const ELIGIBLE_INPUT_TYPES = new Set([
 ]);
 
 const PLURAL_CATEGORIES = ['zero', 'one', 'two', 'few', 'many'];
+const NEAR_LIMIT_THRESHOLD = 10;
 const DEFAULT_PROXIMITY_STOPS = {
 	stops: [
 		{ token: 'far', percentage: 0 },
@@ -25,11 +26,14 @@ let generatedId = 0;
  * @attr {string} for - ID reference for the associated field.
  * @attr {string} counter - ID reference for an authored Light DOM counter.
  * @attr {string} progress - ID reference for an authored Light DOM progress element.
+ * @attr {string} description - Visible empty-field and static field description template.
  * @attr {string} label - Accessible label template for normal counts.
  * @attr {string} proximity-values - Comma-separated proximity stops.
  * @attr {string} proximity - Current proximity token (component managed).
  * @attr {string} overrun - Enables overrun only when its value is "true".
  * @attr {string} overrun-label - Accessible label template for overrun counts.
+ * @attr {string} limit-reached-label - Alert announced when the limit is reached.
+ * @attr {string} limit-exceeded-label - Alert announced when the limit is exceeded.
  * @slot - Authored counter, progress, and surrounding content.
  */
 export class FormMaxlengthProgressElement extends HTMLElement {
@@ -39,9 +43,13 @@ export class FormMaxlengthProgressElement extends HTMLElement {
 			'counter',
 			'progress',
 			'proximity-values',
+			'description',
+			...PLURAL_CATEGORIES.map((category) => `description-${category}`),
 			'overrun',
 			'overrun-label',
 			...PLURAL_CATEGORIES.map((category) => `overrun-label-${category}`),
+			'limit-reached-label',
+			'limit-exceeded-label',
 			'label',
 			...PLURAL_CATEGORIES.map((category) => `label-${category}`),
 		];
@@ -61,7 +69,17 @@ export class FormMaxlengthProgressElement extends HTMLElement {
 		this._ariaInvalidState = null;
 		this._maximum = null;
 		this._refreshScheduled = false;
+		this._descriptionElement = null;
+		this._statusRegion = null;
+		this._alertRegion = null;
+		this._nearWarningAnnounced = false;
+		this._limitAlertAnnounced = false;
+		this._exceededAlertAnnounced = false;
+		this._isComposing = false;
 		this._handleInput = this._handleInput.bind(this);
+		this._handleChange = this._handleChange.bind(this);
+		this._handleCompositionStart = this._handleCompositionStart.bind(this);
+		this._handleCompositionEnd = this._handleCompositionEnd.bind(this);
 		this._handleMutations = this._handleMutations.bind(this);
 		this._mutationObserver = new MutationObserver(this._handleMutations);
 		this.render();
@@ -73,6 +91,11 @@ export class FormMaxlengthProgressElement extends HTMLElement {
 			'counter',
 			'progress',
 			'proximityValues',
+			'description',
+			...PLURAL_CATEGORIES.map(
+				(category) =>
+					`description${category[0].toUpperCase()}${category.slice(1)}`,
+			),
 			'overrun',
 			'overrunLabel',
 			...PLURAL_CATEGORIES.map(
@@ -84,6 +107,8 @@ export class FormMaxlengthProgressElement extends HTMLElement {
 				(category) =>
 					`label${category[0].toUpperCase()}${category.slice(1)}`,
 			),
+			'limitReachedLabel',
+			'limitExceededLabel',
 		]) {
 			this._upgradeProperty(property);
 		}
@@ -151,6 +176,56 @@ export class FormMaxlengthProgressElement extends HTMLElement {
 
 	set overrun(value) {
 		this.setAttribute('overrun', value === true ? 'true' : 'false');
+	}
+
+	get description() {
+		return (
+			this.getAttribute('description') || '{maxlength} characters allowed'
+		);
+	}
+
+	set description(value) {
+		this._reflectStringAttribute('description', value);
+	}
+
+	get descriptionZero() {
+		return this.getAttribute('description-zero');
+	}
+
+	set descriptionZero(value) {
+		this._reflectStringAttribute('description-zero', value);
+	}
+
+	get descriptionOne() {
+		return this.getAttribute('description-one');
+	}
+
+	set descriptionOne(value) {
+		this._reflectStringAttribute('description-one', value);
+	}
+
+	get descriptionTwo() {
+		return this.getAttribute('description-two');
+	}
+
+	set descriptionTwo(value) {
+		this._reflectStringAttribute('description-two', value);
+	}
+
+	get descriptionFew() {
+		return this.getAttribute('description-few');
+	}
+
+	set descriptionFew(value) {
+		this._reflectStringAttribute('description-few', value);
+	}
+
+	get descriptionMany() {
+		return this.getAttribute('description-many');
+	}
+
+	set descriptionMany(value) {
+		this._reflectStringAttribute('description-many', value);
 	}
 
 	get overrunLabel() {
@@ -250,6 +325,28 @@ export class FormMaxlengthProgressElement extends HTMLElement {
 
 	set labelMany(value) {
 		this._reflectStringAttribute('label-many', value);
+	}
+
+	get limitReachedLabel() {
+		return (
+			this.getAttribute('limit-reached-label') ||
+			'Character limit reached'
+		);
+	}
+
+	set limitReachedLabel(value) {
+		this._reflectStringAttribute('limit-reached-label', value);
+	}
+
+	get limitExceededLabel() {
+		return (
+			this.getAttribute('limit-exceeded-label') ||
+			'Character limit exceeded'
+		);
+	}
+
+	set limitExceededLabel(value) {
+		this._reflectStringAttribute('limit-exceeded-label', value);
 	}
 
 	_upgradeProperty(property) {
@@ -366,6 +463,15 @@ export class FormMaxlengthProgressElement extends HTMLElement {
 			this._teardownField();
 			this._field = field;
 			this._field.addEventListener('input', this._handleInput);
+			this._field.addEventListener('change', this._handleChange);
+			this._field.addEventListener(
+				'compositionstart',
+				this._handleCompositionStart,
+			);
+			this._field.addEventListener(
+				'compositionend',
+				this._handleCompositionEnd,
+			);
 		}
 
 		this._maximum = Number(maxlength);
@@ -384,15 +490,68 @@ export class FormMaxlengthProgressElement extends HTMLElement {
 			);
 		}
 
+		this._ensureSupportElements();
 		const descriptions = new Set(
 			(field.getAttribute('aria-describedby') || '')
 				.split(/\s+/)
 				.filter(Boolean),
 		);
-		descriptions.add(this.id);
+		descriptions.add(this._descriptionElement.id);
 		field.setAttribute('aria-describedby', [...descriptions].join(' '));
-		this._update();
+		this._update({ announce: false });
 		this.setAttribute('data-ready', '');
+	}
+
+	_ensureSupportElements() {
+		if (!this._descriptionElement) {
+			this._descriptionElement = document.createElement('span');
+			this._descriptionElement.id = this._createSupportId('description');
+			this._descriptionElement.setAttribute(
+				'data-form-maxlength-progress-description',
+				'',
+			);
+			this._descriptionElement.className =
+				'form-maxlength-progress-visually-hidden';
+			this.append(this._descriptionElement);
+		}
+
+		if (!this._statusRegion) {
+			this._statusRegion = document.createElement('span');
+			this._statusRegion.setAttribute('role', 'status');
+			this._statusRegion.setAttribute('aria-live', 'polite');
+			this._statusRegion.setAttribute('aria-atomic', 'true');
+			this._statusRegion.setAttribute(
+				'data-form-maxlength-progress-status',
+				'',
+			);
+			this._statusRegion.className =
+				'form-maxlength-progress-visually-hidden';
+			this.append(this._statusRegion);
+		}
+
+		if (!this._alertRegion) {
+			this._alertRegion = document.createElement('span');
+			this._alertRegion.setAttribute('role', 'alert');
+			this._alertRegion.setAttribute(
+				'data-form-maxlength-progress-alert',
+				'',
+			);
+			this._alertRegion.className =
+				'form-maxlength-progress-visually-hidden';
+			this._alertRegion.hidden = true;
+			this.append(this._alertRegion);
+		}
+	}
+
+	_createSupportId(suffix) {
+		const base = `${this.id}-${suffix}`;
+		let id = base;
+		let index = 1;
+		while (document.getElementById(id)) {
+			index += 1;
+			id = `${base}-${index}`;
+		}
+		return id;
 	}
 
 	_ensureCounter() {
@@ -489,22 +648,42 @@ export class FormMaxlengthProgressElement extends HTMLElement {
 		}
 	}
 
-	_handleInput() {
-		this._update();
+	_handleInput(event) {
+		this._update({ announce: !this._isComposing && !event.isComposing });
 	}
 
-	_update() {
+	_handleChange() {
+		this._update({ announce: !this._isComposing });
+	}
+
+	_handleCompositionStart() {
+		this._isComposing = true;
+	}
+
+	_handleCompositionEnd() {
+		this._isComposing = false;
+		this._update({ announce: true });
+	}
+
+	_update({ announce = false } = {}) {
 		if (!this._field) {
 			return;
 		}
 
 		const maximum = this._maximum;
 		const remaining = maximum - this._field.value.length;
-		const label = this._formatLabel(remaining);
+		const isEmpty = this._field.value.length === 0;
+		const label = isEmpty
+			? this._formatDescription()
+			: this._formatLabel(remaining);
 		this._syncAriaInvalid(this.overrun && remaining < 0);
+		this._descriptionElement.textContent = this._formatDescription();
 
 		if (this._counter) {
-			this._counter.textContent = String(remaining);
+			const isGenerated = this._counter.hasAttribute(
+				'data-form-maxlength-progress-generated-counter',
+			);
+			this._counter.textContent = isGenerated ? label : String(remaining);
 			this._counter.setAttribute('aria-label', label);
 		}
 		if (this._progress) {
@@ -523,6 +702,74 @@ export class FormMaxlengthProgressElement extends HTMLElement {
 			'proximity',
 			this._getProximityToken(this._field.value.length, maximum),
 		);
+
+		this._syncAnnouncementState(remaining, announce);
+	}
+
+	_syncAnnouncementState(remaining, announce) {
+		if (
+			remaining > NEAR_LIMIT_THRESHOLD ||
+			this._field.value.length === 0
+		) {
+			this._nearWarningAnnounced = false;
+			if (this._statusRegion) {
+				this._statusRegion.textContent = '';
+			}
+		}
+		if (remaining > 0) {
+			this._limitAlertAnnounced = false;
+			this._hideAlert();
+		}
+		if (remaining >= 0) {
+			this._exceededAlertAnnounced = false;
+		}
+
+		if (!announce) {
+			return;
+		}
+
+		if (remaining < 0) {
+			if (!this._exceededAlertAnnounced) {
+				this._showAlert(this.limitExceededLabel);
+				this._exceededAlertAnnounced = true;
+			}
+			return;
+		}
+
+		if (remaining === 0) {
+			if (!this._limitAlertAnnounced) {
+				this._showAlert(this.limitReachedLabel);
+				this._limitAlertAnnounced = true;
+			}
+			return;
+		}
+
+		if (remaining <= NEAR_LIMIT_THRESHOLD && !this._nearWarningAnnounced) {
+			this._notifyNearLimit(this._formatLabel(remaining));
+			this._nearWarningAnnounced = true;
+		}
+	}
+
+	_notifyNearLimit(message) {
+		if (typeof this.ariaNotify === 'function') {
+			this.ariaNotify(message, { priority: 'normal' });
+			return;
+		}
+
+		this._statusRegion.textContent = message;
+	}
+
+	_showAlert(message) {
+		this._alertRegion.textContent = message;
+		this._alertRegion.hidden = false;
+	}
+
+	_hideAlert() {
+		if (!this._alertRegion) {
+			return;
+		}
+		this._alertRegion.hidden = true;
+		this._alertRegion.textContent = '';
 	}
 
 	_syncAriaInvalid(isInvalid) {
@@ -680,7 +927,35 @@ export class FormMaxlengthProgressElement extends HTMLElement {
 			}
 		}
 
-		return template.split('{remaining}').join(String(amount));
+		return template
+			.split('{remaining}')
+			.join(String(amount))
+			.split('{maxlength}')
+			.join(String(this._maximum));
+	}
+
+	_formatDescription() {
+		const language =
+			this.lang ||
+			this.closest('[lang]')?.getAttribute('lang') ||
+			document.documentElement.lang ||
+			undefined;
+		const category = new Intl.PluralRules(language).select(this._maximum);
+		const categoryTemplate = this.getAttribute(`description-${category}`);
+		let template = categoryTemplate || this.getAttribute('description');
+
+		if (!template) {
+			template =
+				category === 'one'
+					? '{maxlength} character allowed'
+					: '{maxlength} characters allowed';
+		}
+
+		return template
+			.split('{maxlength}')
+			.join(String(this._maximum))
+			.split('{remaining}')
+			.join(String(this._maximum));
 	}
 
 	_enableOverrun(maxlength) {
@@ -763,15 +1038,24 @@ export class FormMaxlengthProgressElement extends HTMLElement {
 
 	_teardownField() {
 		this._field?.removeEventListener('input', this._handleInput);
+		this._field?.removeEventListener('change', this._handleChange);
+		this._field?.removeEventListener(
+			'compositionstart',
+			this._handleCompositionStart,
+		);
+		this._field?.removeEventListener(
+			'compositionend',
+			this._handleCompositionEnd,
+		);
 		this._restoreAriaInvalid();
 		this._restoreMaxlength();
 
-		if (this._field && this.id) {
+		if (this._field && this._descriptionElement) {
 			const descriptions = (
 				this._field.getAttribute('aria-describedby') || ''
 			)
 				.split(/\s+/)
-				.filter((id) => id && id !== this.id);
+				.filter((id) => id && id !== this._descriptionElement.id);
 
 			if (descriptions.length > 0) {
 				this._field.setAttribute(
@@ -785,9 +1069,23 @@ export class FormMaxlengthProgressElement extends HTMLElement {
 
 		this._field = null;
 		this._maximum = null;
+		this._isComposing = false;
+		this._nearWarningAnnounced = false;
+		this._limitAlertAnnounced = false;
+		this._exceededAlertAnnounced = false;
 		this._restoreHooks();
+		this._removeSupportElements();
 		this.removeAttribute('proximity');
 		this.removeAttribute('data-ready');
+	}
+
+	_removeSupportElements() {
+		this._descriptionElement?.remove();
+		this._statusRegion?.remove();
+		this._alertRegion?.remove();
+		this._descriptionElement = null;
+		this._statusRegion = null;
+		this._alertRegion = null;
 	}
 
 	_restoreHooks() {
@@ -859,6 +1157,19 @@ export class FormMaxlengthProgressElement extends HTMLElement {
 
 				:host([hidden]) {
 					display: none;
+				}
+
+				::slotted(.form-maxlength-progress-visually-hidden) {
+					border: 0;
+					clip: rect(0 0 0 0);
+					clip-path: inset(50%);
+					height: 1px;
+					margin: -1px;
+					overflow: hidden;
+					padding: 0;
+					position: absolute;
+					white-space: nowrap;
+					width: 1px;
 				}
 			</style>
 			<slot></slot>

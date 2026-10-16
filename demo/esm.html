@@ -21,6 +21,20 @@
 			form-maxlength-progress[proximity='target'] {
 				color: crimson;
 			}
+
+			.maxlength-field {
+				max-inline-size: 30rem;
+			}
+
+			.maxlength-field textarea {
+				box-sizing: border-box;
+				inline-size: 100%;
+			}
+
+			.maxlength-field form-maxlength-progress {
+				display: block;
+				text-align: end;
+			}
 		</style>
 	</head>
 	<body>
@@ -30,11 +44,13 @@
 			registers it manually.
 		</p>
 
-		<label for="esm-message">Message</label>
-		<textarea id="esm-message" maxlength="100"></textarea>
-		<form-maxlength-progress
-			for="esm-message"
-		></form-maxlength-progress>
+		<div class="maxlength-field">
+			<label for="esm-message">Message</label>
+			<textarea id="esm-message" maxlength="100"></textarea>
+			<form-maxlength-progress
+				for="esm-message"
+			></form-maxlength-progress>
+		</div>
 
 		<script type="module">
 			import { FormMaxlengthProgressElement } from 'https://esm.sh/@aarongustafson/form-maxlength-progress@1.0.0/form-maxlength-progress.js?bundle&target=es2022';

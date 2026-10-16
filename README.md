@@ -53,7 +53,7 @@ Associate the component to an eligible field using `for`. The field must have a 
 <form-maxlength-progress for="message"></form-maxlength-progress>
 ```
 
-The component injects a numeric Light DOM counter, generates its own ID when needed, and appends that ID to the field's existing `aria-describedby` tokens.
+When the field is empty, the component displays its maximum (“280 characters allowed” by default). Once the field has content, it displays the remaining count. It also creates a separate, visually hidden static description and appends only that description's ID to the field's existing `aria-describedby` tokens. The changing visible text is intentionally not directly associated with the field, avoiding description-change announcements on every keystroke in Chromium-based browsers.
 
 The simplified rendered Light DOM looks like this (generated IDs vary):
 
@@ -65,8 +65,15 @@ The simplified rendered Light DOM looks like this (generated IDs vary):
 >
   <span
     data-form-maxlength-progress-generated-counter
-    aria-label="280 characters remaining"
-  >280</span>
+    aria-label="280 characters allowed"
+    >280 characters allowed</span
+  >
+  <span
+    id="form-maxlength-progress-1-description"
+    data-form-maxlength-progress-description
+    >280 characters allowed</span
+  >
+  <!-- Visually hidden status and alert support elements are also generated. -->
 </form-maxlength-progress>
 ```
 
@@ -117,29 +124,47 @@ form-maxlength-progress:not(:defined) {
 
 ## Labels and localization
 
-Use `label` to set the default accessible wording, and put `{remaining}`
-wherever the current number should appear. Use `label-one` when the singular
+Use `description` for an empty field and `label` for a field with content.
+`{maxlength}` is available in both templates, and `{remaining}` is available
+in count labels. Use the category attributes when singular or other plural
 wording differs:
 
 ```html
 <form-maxlength-progress
   for="message"
-  label="{remaining} characters available"
-  label-one="{remaining} character available"
+  description="{maxlength} characters allowed"
+  description-one="{maxlength} character allowed"
+  label="{remaining} left ({maxlength} max)"
+  label-one="{remaining} left ({maxlength} max)"
 ></form-maxlength-progress>
 ```
 
 Plural selection uses `Intl.PluralRules` and the component's inherited language. The optional category attributes are:
 
+- `description-zero`
+- `description-one`
+- `description-two`
+- `description-few`
+- `description-many`
 - `label-zero`
 - `label-one`
 - `label-two`
 - `label-few`
 - `label-many`
 
-Missing categories fall back to `label`. Without custom labels, the defaults are “1 character remaining” and “X characters remaining.”
+Missing description categories fall back to `description`; missing count categories fall back to `label`. Without custom values, the empty-field defaults are “1 character allowed” and “X characters allowed,” and the count defaults are “1 character remaining” and “X characters remaining.”
 
-The component intentionally does not create a live region or set `aria-atomic`. The current text is available through `aria-describedby` without forcing a potentially noisy announcement after every keystroke.
+## Assistive-technology notifications
+
+The component keeps routine typing quiet:
+
+- The static maximum description is referenced by `aria-describedby`; the changing visible count is not.
+- Entering the final 10 characters sends one polite notification. The component uses `ariaNotify()` when available and otherwise updates a visually hidden `role="status"` fallback.
+- Reaching the limit reveals a `role="alert"` message. With overrun enabled, crossing beyond it reveals an exceeded alert instead.
+- Paste, autofill-style input, deletion and re-entry, and IME composition use the same transition rules. A direct jump to or beyond the limit does not also send the near-limit warning.
+- Initialization and configuration changes do not produce unsolicited notifications.
+
+Use `limit-reached-label` and `limit-exceeded-label` to localize the alert text. The remaining-count `label` supplies the localized near-limit notification.
 
 ## Proximity states
 
@@ -195,7 +220,7 @@ Adding `overrun="true"` to `<form-maxlength-progress>` enables values to overrun
 ></form-maxlength-progress>
 ```
 
-While enabled, the component moves the field's `maxlength` value to `data-maxlength`, allowing the visible remaining count to become negative. Progress remains capped at 100%, and accessible labels use the positive amount over the limit.
+While enabled, the component moves the field's `maxlength` value to `data-maxlength`. Authored numeric counters can become negative; the generated counter uses the overrun label and a positive amount. Progress remains capped at 100%.
 
 Overrun supports the same plural categories through `overrun-label-zero`, `overrun-label-one`, `overrun-label-two`, `overrun-label-few`, and `overrun-label-many`.
 
@@ -221,20 +246,61 @@ The enhancement is reversible. `overrun="false"`, reassociation, or disconnectio
 
 ## Attributes and properties
 
-| Attribute | Property | Default | Purpose |
-| --- | --- | --- | --- |
-| `for` | `htmlFor` | `""` | Associated field ID reference |
-| `counter` | `counter` | `""` | Authored counter descendant ID reference |
-| `progress` | `progress` | `""` | Authored `progress` descendant ID reference |
-| `label` | `label` | `{remaining} characters remaining` | Normal `other` label template |
-| `label-{category}` | `labelZero`, `labelOne`, etc. | category fallback | Normal plural-category templates |
-| `proximity-values` | `proximityValues` | `far 0%, close 75%, target 100%, overrun` | Custom lower-bound stops |
-| `proximity` | `proximity` (read-only) | calculated | Current style token |
-| `overrun` | `overrun` | `false` | Enabled only by the exact string `true` |
-| `overrun-label` | `overrunLabel` | `{remaining} characters over the max length.` | Overrun `other` template |
-| `overrun-label-{category}` | `overrunLabelZero`, `overrunLabelOne`, etc. | category fallback | Overrun plural-category templates |
+| Attribute                  | Property                                    | Default                                       | Purpose                                           |
+| -------------------------- | ------------------------------------------- | --------------------------------------------- | ------------------------------------------------- |
+| `for`                      | `htmlFor`                                   | `""`                                          | Associated field ID reference                     |
+| `counter`                  | `counter`                                   | `""`                                          | Authored counter descendant ID reference          |
+| `progress`                 | `progress`                                  | `""`                                          | Authored `progress` descendant ID reference       |
+| `description`              | `description`                               | `{maxlength} characters allowed`              | Empty-field and static field-description template |
+| `description-{category}`   | `descriptionZero`, `descriptionOne`, etc.   | category fallback                             | Description plural-category templates             |
+| `label`                    | `label`                                     | `{remaining} characters remaining`            | Normal `other` label template                     |
+| `label-{category}`         | `labelZero`, `labelOne`, etc.               | category fallback                             | Normal plural-category templates                  |
+| `proximity-values`         | `proximityValues`                           | `far 0%, close 75%, target 100%, overrun`     | Custom lower-bound stops                          |
+| `proximity`                | `proximity` (read-only)                     | calculated                                    | Current style token                               |
+| `overrun`                  | `overrun`                                   | `false`                                       | Enabled only by the exact string `true`           |
+| `overrun-label`            | `overrunLabel`                              | `{remaining} characters over the max length.` | Overrun `other` template                          |
+| `overrun-label-{category}` | `overrunLabelZero`, `overrunLabelOne`, etc. | category fallback                             | Overrun plural-category templates                 |
+| `limit-reached-label`      | `limitReachedLabel`                         | `Character limit reached`                     | Alert text when the limit is reached              |
+| `limit-exceeded-label`     | `limitExceededLabel`                        | `Character limit exceeded`                    | Alert text when overrun crosses the limit         |
 
 The `overrun` property is boolean. Setting it writes `"true"` or `"false"` to the attribute.
+
+## Inline-end layout
+
+Layout remains author controlled. A wrapper can align the message to the
+field's inline end without requiring the component to reposition itself:
+
+```html
+<div class="maxlength-field">
+  <label for="message">Message</label>
+  <textarea id="message" maxlength="280"></textarea>
+  <form-maxlength-progress for="message"></form-maxlength-progress>
+</div>
+```
+
+```css
+.maxlength-field {
+  max-inline-size: 30rem;
+}
+
+.maxlength-field textarea {
+  box-sizing: border-box;
+  inline-size: 100%;
+}
+
+.maxlength-field form-maxlength-progress {
+  display: block;
+  text-align: end;
+}
+
+.maxlength-field:has(form-maxlength-progress[proximity='target']) textarea {
+  border-width: 3px;
+}
+```
+
+Combine text and color with a structural cue such as border thickness. Preserve
+the field's focus outline so reaching the limit does not make focus harder to
+locate.
 
 ## Styling and initial visibility
 
