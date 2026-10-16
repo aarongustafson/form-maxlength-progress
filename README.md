@@ -280,12 +280,14 @@ field's inline end without requiring the component to reposition itself:
 
 ```css
 .maxlength-field {
-  max-inline-size: 30rem;
+  display: inline-grid;
+  max-inline-size: 100%;
 }
 
 .maxlength-field textarea {
   box-sizing: border-box;
-  inline-size: 100%;
+  inline-size: 30rem;
+  max-inline-size: 100%;
 }
 
 .maxlength-field form-maxlength-progress {
@@ -300,7 +302,8 @@ field's inline end without requiring the component to reposition itself:
 
 Combine text and color with a structural cue such as border thickness. Preserve
 the field's focus outline so reaching the limit does not make focus harder to
-locate.
+locate. The intrinsic inline-grid wrapper follows a user-resized textarea's
+inline size, keeping the message aligned to the field's inline end.
 
 ## Styling and initial visibility
 
