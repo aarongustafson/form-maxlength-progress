@@ -924,18 +924,21 @@ describe('FormMaxlengthProgressElement', () => {
 			expect(second.hasAttribute('data-maxlength')).toBe(false);
 		});
 
-		it('adopts a new maxlength set while overrun is active', async () => {
+		it('hoists a new maxLength property value while overrun is active', async () => {
 			const field = createField({ maxlength: 5, value: '123456' });
 			const element = await createElement({
 				for: field.id,
 				overrun: 'true',
 			});
 
-			field.setAttribute('maxlength', '10');
+			field.maxLength = 10;
 			await settle();
 
 			expect(field.hasAttribute('maxlength')).toBe(false);
 			expect(field.getAttribute('data-maxlength')).toBe('10');
+			expect(getFieldDescription(field).textContent).toBe(
+				'10 characters allowed',
+			);
 			expect(
 				element.querySelector(
 					'[data-form-maxlength-progress-generated-counter]',

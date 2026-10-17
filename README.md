@@ -261,6 +261,11 @@ that behavior separately.
 
 The enhancement is reversible. `overrun="false"`, reassociation, or disconnection restores `maxlength` and any pre-existing `data-maxlength` value.
 
+If application code sets a new `maxlength` attribute or `maxLength` property
+while overrun is active, the component observes the reflected attribute,
+updates its maximum and static description, moves the new value to
+`data-maxlength`, and removes native enforcement again.
+
 ## Attributes and properties
 
 | Attribute                  | Property                                    | Default                                       | Purpose                                           |
