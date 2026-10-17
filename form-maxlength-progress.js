@@ -533,8 +533,6 @@ export class FormMaxlengthProgressElement extends HTMLElement {
 				'data-form-maxlength-progress-status',
 				'',
 			);
-			this._statusRegion.className =
-				'form-maxlength-progress-visually-hidden';
 		}
 		if (!this.contains(this._statusRegion)) {
 			this.append(this._statusRegion);
@@ -547,8 +545,6 @@ export class FormMaxlengthProgressElement extends HTMLElement {
 				'data-form-maxlength-progress-alert',
 				'',
 			);
-			this._alertRegion.className =
-				'form-maxlength-progress-visually-hidden';
 			this._alertRegion.hidden = true;
 		}
 		if (!this.contains(this._alertRegion)) {
@@ -1178,7 +1174,8 @@ export class FormMaxlengthProgressElement extends HTMLElement {
 					display: none;
 				}
 
-				::slotted(.form-maxlength-progress-visually-hidden) {
+				::slotted([data-form-maxlength-progress-status]),
+				::slotted([data-form-maxlength-progress-alert]) {
 					border: 0;
 					clip: rect(0 0 0 0);
 					clip-path: inset(50%);

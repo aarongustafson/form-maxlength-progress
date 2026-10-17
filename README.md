@@ -74,17 +74,11 @@ The simplified rendered Light DOM looks like this (generated IDs vary):
   >
   <span
     data-form-maxlength-progress-status
-    class="form-maxlength-progress-visually-hidden"
     role="status"
     aria-live="polite"
     aria-atomic="true"
   ></span>
-  <span
-    data-form-maxlength-progress-alert
-    class="form-maxlength-progress-visually-hidden"
-    role="alert"
-    hidden
-  ></span>
+  <span data-form-maxlength-progress-alert role="alert" hidden></span>
 </form-maxlength-progress>
 ```
 
@@ -372,10 +366,10 @@ form-maxlength-progress[proximity='overrun'] {
 ```
 
 The description must remain hidden because it is the field's static
-assistive-technology text. The status and alert use the component's visually
-hidden class by default, but their data hooks allow an application to provide a
-visible treatment if desired. When doing so, preserve `[hidden]` so inactive
-alerts remain absent.
+assistive-technology text. The component visually hides the status and alert
+through their data attributes, while those same hooks allow an application to
+provide a visible treatment if desired. When doing so, preserve `[hidden]` so
+inactive alerts remain absent.
 
 Component JavaScript hides authored contents after upgrade until all references validate. To prevent a flash before the custom element definition loads, add:
 
