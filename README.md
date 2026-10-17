@@ -326,6 +326,52 @@ inline size, keeping the message aligned to the field's inline end.
 
 The ready component defaults to `display: inline-block`; author CSS can override it. `[hidden]` always uses `display: none`.
 
+### Styling hooks
+
+All generated elements are in Light DOM. The data attributes below are stable
+styling hooks:
+
+| Selector                                                      | Element and state                                                         |
+| ------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| `[data-form-maxlength-progress-generated-counter]`            | Visible generated text, both the at-rest description and active countdown |
+| `[data-form-maxlength-progress-description]`                  | Native-hidden static text referenced by the field's `aria-describedby`    |
+| `[data-form-maxlength-progress-status]`                       | Polite near-limit fallback used when `ariaNotify()` is unavailable        |
+| `[data-form-maxlength-progress-alert]`                        | Reached/exceeded alert; `hidden` until active                             |
+| `form-maxlength-progress[proximity='…']`                      | Component host at the current configured proximity stop                   |
+| `textarea[aria-invalid='true']`, `input[aria-invalid='true']` | Associated overrun-enabled field while above its maximum                  |
+| `textarea[data-maxlength]`, `input[data-maxlength]`           | Associated field while native `maxlength` is moved aside for overrun      |
+
+For example:
+
+```css
+[data-form-maxlength-progress-generated-counter] {
+  font-variant-numeric: tabular-nums;
+}
+
+form-maxlength-progress[proximity='close'] {
+  color: darkorange;
+}
+
+form-maxlength-progress[proximity='target'],
+form-maxlength-progress[proximity='overrun'] {
+  color: crimson;
+  font-weight: bold;
+}
+
+.maxlength-field:has(
+    form-maxlength-progress:is([proximity='target'], [proximity='overrun'])
+  )
+  :is(textarea, input) {
+  border-width: 3px;
+}
+```
+
+The description must remain hidden because it is the field's static
+assistive-technology text. The status and alert use the component's visually
+hidden class by default, but their data hooks allow an application to provide a
+visible treatment if desired. When doing so, preserve `[hidden]` so inactive
+alerts remain absent.
+
 Component JavaScript hides authored contents after upgrade until all references validate. To prevent a flash before the custom element definition loads, add:
 
 ```css
