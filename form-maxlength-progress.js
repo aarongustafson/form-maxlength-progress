@@ -498,8 +498,16 @@ export class FormMaxlengthProgressElement extends HTMLElement {
 		);
 		descriptions.add(this._descriptionElement.id);
 		field.setAttribute('aria-describedby', [...descriptions].join(' '));
+		this._syncDescription();
 		this._update({ announce: false });
 		this.setAttribute('data-ready', '');
+	}
+
+	_syncDescription() {
+		const description = this._formatDescription();
+		if (this._descriptionElement.textContent !== description) {
+			this._descriptionElement.textContent = description;
+		}
 	}
 
 	_ensureSupportElements() {
@@ -683,7 +691,6 @@ export class FormMaxlengthProgressElement extends HTMLElement {
 			? this._formatDescription()
 			: this._formatLabel(remaining);
 		this._syncAriaInvalid(this.overrun && remaining < 0);
-		this._descriptionElement.textContent = this._formatDescription();
 
 		if (this._counter) {
 			const isGenerated = this._counter.hasAttribute(

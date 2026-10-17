@@ -266,6 +266,7 @@ describe('FormMaxlengthProgressElement', () => {
 			element.description = 'Maximum: {maxlength}';
 			await settle();
 			expect(element.firstElementChild.textContent).toBe('Maximum: 1');
+			expect(getFieldDescription(field).textContent).toBe('Maximum: 1');
 		});
 
 		it('creates a Light DOM counter and updates it on input', async () => {
@@ -285,6 +286,33 @@ describe('FormMaxlengthProgressElement', () => {
 
 			expect(counter.textContent).toBe('1 character remaining');
 			expect(counter.hasAttribute('aria-label')).toBe(false);
+		});
+
+		it('does not touch the static description during field input', async () => {
+			const field = createField({ maxlength: 20 });
+			const element = await createElement({ for: field.id });
+			const counter = element.querySelector(
+				'[data-form-maxlength-progress-generated-counter]',
+			);
+			const description = getFieldDescription(field);
+			const mutations = [];
+			const observer = new MutationObserver((records) => {
+				mutations.push(...records);
+			});
+			observer.observe(description, {
+				characterData: true,
+				childList: true,
+				subtree: true,
+			});
+
+			field.value = 'hello';
+			field.dispatchEvent(new Event('input'));
+			await Promise.resolve();
+			observer.disconnect();
+
+			expect(counter.textContent).toBe('15 characters remaining');
+			expect(description.textContent).toBe('20 characters allowed');
+			expect(mutations).toHaveLength(0);
 		});
 
 		it('uses UTF-16 code units like native maxlength', async () => {
