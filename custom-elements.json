@@ -31,6 +31,12 @@
 						},
 						{
 							"kind": "field",
+							"name": "description",
+							"type": { "text": "string" },
+							"attribute": "description"
+						},
+						{
+							"kind": "field",
 							"name": "proximityValues",
 							"type": { "text": "string" },
 							"attribute": "proximity-values"
@@ -119,6 +125,18 @@
 							"name": "overrunLabelMany",
 							"type": { "text": "string | null" },
 							"attribute": "overrun-label-many"
+						},
+						{
+							"kind": "field",
+							"name": "limitReachedLabel",
+							"type": { "text": "string" },
+							"attribute": "limit-reached-label"
+						},
+						{
+							"kind": "field",
+							"name": "limitExceededLabel",
+							"type": { "text": "string" },
+							"attribute": "limit-exceeded-label"
 						}
 					],
 					"attributes": [
@@ -138,8 +156,14 @@
 							"type": { "text": "string" }
 						},
 						{
+							"name": "description",
+							"description": "Empty-field and static field-description template containing {maxlength}.",
+							"type": { "text": "string" },
+							"default": "{maxlength} characters allowed"
+						},
+						{
 							"name": "label",
-							"description": "Other-category accessible label template containing {remaining}.",
+							"description": "Other-category count label template containing {remaining} and optionally {maxlength}.",
 							"type": { "text": "string" },
 							"default": "{remaining} characters remaining"
 						},
@@ -217,6 +241,27 @@
 							"name": "overrun-label-many",
 							"description": "Optional overrun many-category label template.",
 							"type": { "text": "string" }
+						},
+						{
+							"name": "limit-reached-label",
+							"description": "Alert text used when committed input reaches maxlength.",
+							"type": { "text": "string" },
+							"default": "Character limit reached"
+						},
+						{
+							"name": "limit-exceeded-label",
+							"description": "Alert text used when overrun-enabled input exceeds maxlength.",
+							"type": { "text": "string" },
+							"default": "Character limit exceeded"
+						}
+					],
+					"events": [
+						{
+							"name": "form-maxlength-progress:notification",
+							"description": "Fired when the component announces a near-limit, reached, or exceeded message.",
+							"type": {
+								"text": "CustomEvent<{ state: 'near-limit' | 'limit-reached' | 'limit-exceeded', message: string, priority: 'normal' | 'high', remaining: number, maximum: number, field: HTMLInputElement | HTMLTextAreaElement }>"
+							}
 						}
 					],
 					"slots": [

@@ -3,6 +3,25 @@
  *
  * @element form-maxlength-progress
  */
+export type FormMaxlengthProgressNotificationState =
+	| 'near-limit'
+	| 'limit-reached'
+	| 'limit-exceeded';
+
+export type FormMaxlengthProgressNotificationPriority = 'normal' | 'high';
+
+export interface FormMaxlengthProgressNotificationDetail {
+	state: FormMaxlengthProgressNotificationState;
+	message: string;
+	priority: FormMaxlengthProgressNotificationPriority;
+	remaining: number;
+	maximum: number;
+	field: HTMLInputElement | HTMLTextAreaElement;
+}
+
+export type FormMaxlengthProgressNotificationEvent =
+	CustomEvent<FormMaxlengthProgressNotificationDetail>;
+
 export class FormMaxlengthProgressElement extends HTMLElement {
 	static readonly observedAttributes: string[];
 
@@ -29,6 +48,9 @@ export class FormMaxlengthProgressElement extends HTMLElement {
 
 	/** Current component-managed proximity token. */
 	get proximity(): string;
+
+	get description(): string;
+	set description(value: string | null | undefined);
 
 	get overrun(): boolean;
 	set overrun(value: boolean);
@@ -59,6 +81,11 @@ export class FormMaxlengthProgressElement extends HTMLElement {
 	get overrunLabelMany(): string | null;
 	set overrunLabelMany(value: string | null | undefined);
 
+	get limitReachedLabel(): string;
+	set limitReachedLabel(value: string | null | undefined);
+	get limitExceededLabel(): string;
+	set limitExceededLabel(value: string | null | undefined);
+
 	render(): void;
 }
 
@@ -66,4 +93,10 @@ declare global {
 	interface HTMLElementTagNameMap {
 		'form-maxlength-progress': FormMaxlengthProgressElement;
 	}
+
+	interface GlobalEventHandlersEventMap {
+		'form-maxlength-progress:notification': FormMaxlengthProgressNotificationEvent;
+	}
 }
+
+export {};

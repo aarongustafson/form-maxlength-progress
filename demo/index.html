@@ -46,6 +46,47 @@
 			.custom-progress progress {
 				flex: 1;
 			}
+
+			.maxlength-field {
+				display: inline-grid;
+				max-inline-size: 100%;
+			}
+
+			.maxlength-field input,
+			.maxlength-field textarea {
+				box-sizing: border-box;
+				min-inline-size: 26rem;
+				max-inline-size: 100%;
+				max-width: none;
+			}
+
+			.maxlength-field form-maxlength-progress {
+				display: block;
+				text-align: end;
+			}
+
+			.maxlength-field:has(form-maxlength-progress[proximity='target'])
+				:is(input, textarea),
+			.maxlength-field:has(form-maxlength-progress[proximity='overrun'])
+				:is(input, textarea) {
+				border-width: 3px;
+			}
+
+			.sample-text {
+				display: block;
+				margin-block: 0.5rem 1rem;
+				user-select: all;
+			}
+
+			.event-output {
+				background: ButtonFace;
+				border: 1px solid ButtonBorder;
+				border-radius: 0.25rem;
+				margin: 1rem 0 0;
+				min-block-size: 7lh;
+				padding: 1rem;
+				white-space: pre-wrap;
+			}
 		</style>
 	</head>
 	<body>
@@ -67,9 +108,12 @@
 				<h2>Default counter</h2>
 				<div class="demo-section">
 					<p>
-						The component creates a numeric counter and associates
-						it with the field through
-						<code>aria-describedby</code>. The generated
+						The <code>description</code> template supplies both the
+						empty-field text and a native-hidden static description
+						associated through <code>aria-describedby</code>. The
+						changing generated counter is hidden from assistive
+						technology to avoid duplicate and per-keystroke
+						description announcements. The generated
 						<code
 							>[data-form-maxlength-progress-generated-counter]</code
 						>
@@ -78,19 +122,72 @@
 					</p>
 					<div class="code-demo-pair">
 						<pre><code>&lt;textarea id="message" maxlength="120"&gt;&lt;/textarea&gt;
-&lt;form-maxlength-progress for="message"&gt;
+&lt;form-maxlength-progress
+  for="message"
+  description="Write up to {maxlength} characters"
+&gt;
 &lt;/form-maxlength-progress&gt;</code></pre>
 						<div class="demo">
-							<label for="message">Message</label>
+							<div class="maxlength-field">
+								<label for="message">Message</label>
+								<textarea
+									id="message"
+									maxlength="120"
+									rows="5"
+								></textarea>
+								<form-maxlength-progress
+									for="message"
+									description="Write up to {maxlength} characters"
+								></form-maxlength-progress>
+							</div>
+						</div>
+					</div>
+				</div>
+			</section>
+
+			<section>
+				<h2>Paste and autofill checks</h2>
+				<div class="demo-section">
+					<p>
+						These fields exercise real browser input paths rather
+						than buttons that imitate them. Copy the sample into the
+						first field. Use saved address data in the second field
+						to check browser autofill.
+					</p>
+					<div class="demo">
+						<div class="maxlength-field">
+							<label for="paste-check">Paste check</label>
+							<code class="sample-text"
+								>This sample jumps beyond the forty character
+								limit.</code
+							>
 							<textarea
-								id="message"
-								maxlength="120"
-								rows="5"
+								id="paste-check"
+								maxlength="40"
+								rows="3"
 							></textarea>
 							<form-maxlength-progress
-								for="message"
+								for="paste-check"
+								overrun="true"
 							></form-maxlength-progress>
 						</div>
+
+						<form autocomplete="on">
+							<div class="maxlength-field">
+								<label for="address-check"
+									>Street address autofill check</label
+								>
+								<input
+									id="address-check"
+									name="street-address"
+									autocomplete="street-address"
+									maxlength="40"
+								/>
+								<form-maxlength-progress
+									for="address-check"
+								></form-maxlength-progress>
+							</div>
+						</form>
 					</div>
 				</div>
 			</section>
@@ -134,39 +231,97 @@
 			</section>
 
 			<section>
-				<h2>Localized overrun</h2>
+				<h2>French translation and overrun</h2>
 				<div class="demo-section">
 					<p>
-						Overrun removes native enforcement while the component
-						is active. The visible count can become negative while
-						the accessible label describes the positive amount over.
-						The field receives <code>aria-invalid="true"</code>
-						until its value returns within the limit.
+						The component inherits <code>lang</code> for plural
+						selection. Translate the description, remaining and
+						overrun labels, and reached/exceeded alerts together.
+						Overrun removes native enforcement and sets
+						<code>aria-invalid="true"</code> until the value returns
+						within the limit.
 					</p>
 					<div class="code-demo-pair">
-						<pre><code>&lt;form-maxlength-progress
-  for="short-note"
-  overrun="true"
-  label="{remaining} characters available"
-  label-one="{remaining} character available"
-  overrun-label="{remaining} characters too many"
-  overrun-label-one="{remaining} character too many"
-&gt;&lt;/form-maxlength-progress&gt;</code></pre>
+						<pre><code>&lt;div lang="fr"&gt;
+  &lt;label for="short-note"&gt;Note courte&lt;/label&gt;
+  &lt;textarea id="short-note" maxlength="40"&gt;&lt;/textarea&gt;
+  &lt;form-maxlength-progress
+    for="short-note"
+    overrun="true"
+    description="{maxlength} caractères maximum"
+    label="{remaining} caractères restants"
+    label-one="{remaining} caractère restant"
+    overrun-label="{remaining} caractères en trop"
+    overrun-label-one="{remaining} caractère en trop"
+    limit-reached-label="Limite de caractères atteinte"
+    limit-exceeded-label="Limite de caractères dépassée"
+  &gt;&lt;/form-maxlength-progress&gt;
+&lt;/div&gt;</code></pre>
+						<div class="demo" lang="fr">
+							<div class="maxlength-field">
+								<label for="short-note">Note courte</label>
+								<textarea
+									id="short-note"
+									maxlength="40"
+									rows="4"
+								></textarea>
+								<form-maxlength-progress
+									for="short-note"
+									overrun="true"
+									description="{maxlength} caractères maximum"
+									label="{remaining} caractères restants"
+									label-one="{remaining} caractère restant"
+									overrun-label="{remaining} caractères en trop"
+									overrun-label-one="{remaining} caractère en trop"
+									limit-reached-label="Limite de caractères atteinte"
+									limit-exceeded-label="Limite de caractères dépassée"
+								></form-maxlength-progress>
+							</div>
+						</div>
+					</div>
+				</div>
+			</section>
+
+			<section>
+				<h2>Event handling</h2>
+				<div class="demo-section">
+					<p>
+						Listen for
+						<code>form-maxlength-progress:notification</code> to
+						respond when the field nears, reaches, or exceeds its
+						limit. The event’s detail includes its milestone state,
+						message, priority, remaining count, maximum, and
+						associated field.
+					</p>
+					<div class="code-demo-pair">
+						<pre><code>document
+  .querySelector('#event-progress')
+  .addEventListener(
+    'form-maxlength-progress:notification',
+    (event) =&gt; {
+      console.log(event.detail);
+    }
+  );</code></pre>
 						<div class="demo">
-							<label for="short-note">Short note</label>
-							<textarea
-								id="short-note"
-								maxlength="40"
-								rows="4"
-							></textarea>
-							<form-maxlength-progress
-								for="short-note"
-								overrun="true"
-								label="{remaining} characters available"
-								label-one="{remaining} character available"
-								overrun-label="{remaining} characters too many"
-								overrun-label-one="{remaining} character too many"
-							></form-maxlength-progress>
+							<div class="maxlength-field">
+								<label for="event-message"
+									>Notification event</label
+								>
+								<textarea
+									id="event-message"
+									maxlength="20"
+									rows="3"
+								></textarea>
+								<form-maxlength-progress
+									id="event-progress"
+									for="event-message"
+									overrun="true"
+								></form-maxlength-progress>
+							</div>
+							<pre
+								id="event-output"
+								class="event-output"
+							>Waiting for a notification milestone…</pre>
 						</div>
 					</div>
 				</div>
@@ -176,12 +331,34 @@
 		<footer>
 			<p>
 				Made with ❤️ by
-				<a href="https://github.com/aarongustafson"
-					>Aaron Gustafson</a
-				>.
+				<a href="https://github.com/aarongustafson">Aaron Gustafson</a>.
 			</p>
 		</footer>
 
 		<script src="../define.js" type="module"></script>
+		<script type="module">
+			document
+				.querySelector('#event-progress')
+				.addEventListener(
+					'form-maxlength-progress:notification',
+					(event) => {
+						const { state, message, priority, remaining, maximum } =
+							event.detail;
+						document.querySelector('#event-output').textContent =
+							JSON.stringify(
+								{
+									state,
+									message,
+									priority,
+									remaining,
+									maximum,
+									field: `#${event.detail.field.id}`,
+								},
+								null,
+								2,
+							);
+					},
+				);
+		</script>
 	</body>
 </html>
