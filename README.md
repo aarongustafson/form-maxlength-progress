@@ -53,7 +53,7 @@ Associate the component to an eligible field using `for`. The field must have a 
 <form-maxlength-progress for="message"></form-maxlength-progress>
 ```
 
-When the field is empty, the component displays its maximum (“280 characters allowed” by default). Once the field has content, it displays the remaining count. It also creates a separate, visually hidden static description and appends only that description's ID to the field's existing `aria-describedby` tokens. The changing visible text is intentionally not directly associated with the field, avoiding description-change announcements on every keystroke in Chromium-based browsers.
+When the field is empty, the component displays its maximum (“280 characters allowed” by default). Once the field has content, it displays the remaining count. It also creates a separate, natively hidden static description and appends only that description's ID to the field's existing `aria-describedby` tokens. The changing generated counter is `aria-hidden`, avoiding duplicate content and description-change announcements on every keystroke in Chromium-based browsers.
 
 The simplified rendered Light DOM looks like this (generated IDs vary):
 
@@ -63,19 +63,20 @@ The simplified rendered Light DOM looks like this (generated IDs vary):
   id="form-maxlength-progress-1"
   proximity="far"
 >
-  <span
-    data-form-maxlength-progress-generated-counter
-    aria-label="280 characters allowed"
+  <span data-form-maxlength-progress-generated-counter aria-hidden="true"
     >280 characters allowed</span
   >
   <span
     id="form-maxlength-progress-1-description"
     data-form-maxlength-progress-description
+    hidden
     >280 characters allowed</span
   >
-  <!-- Visually hidden status and alert support elements are also generated. -->
 </form-maxlength-progress>
 ```
+
+The polite status fallback and limit alert are implementation details in the
+component's shadow root rather than additional Light DOM content.
 
 The generated counter data attribute is a supported styling hook:
 
@@ -158,7 +159,8 @@ Missing description categories fall back to `description`; missing count categor
 
 The component keeps routine typing quiet:
 
-- The static maximum description is referenced by `aria-describedby`; the changing visible count is not.
+- The native-hidden static maximum description is referenced by `aria-describedby`.
+- The changing generated counter is `aria-hidden`; authored counters retain their own accessible text and ARIA.
 - Entering the final 10 characters sends one polite notification. The component uses `ariaNotify()` when available and otherwise updates a visually hidden `role="status"` fallback.
 - Reaching the limit reveals a `role="alert"` message. With overrun enabled, crossing beyond it reveals an exceeded alert instead.
 - Paste, autofill-style input, deletion and re-entry, and IME composition use the same transition rules. A direct jump to or beyond the limit does not also send the near-limit warning.

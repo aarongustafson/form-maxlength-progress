@@ -70,8 +70,6 @@ export class FormMaxlengthProgressElement extends HTMLElement {
 		this._maximum = null;
 		this._refreshScheduled = false;
 		this._descriptionElement = null;
-		this._statusRegion = null;
-		this._alertRegion = null;
 		this._nearWarningAnnounced = false;
 		this._limitAlertAnnounced = false;
 		this._exceededAlertAnnounced = false;
@@ -83,6 +81,12 @@ export class FormMaxlengthProgressElement extends HTMLElement {
 		this._handleMutations = this._handleMutations.bind(this);
 		this._mutationObserver = new MutationObserver(this._handleMutations);
 		this.render();
+		this._statusRegion = this.shadowRoot.querySelector(
+			'[data-form-maxlength-progress-status]',
+		);
+		this._alertRegion = this.shadowRoot.querySelector(
+			'[data-form-maxlength-progress-alert]',
+		);
 	}
 
 	connectedCallback() {
@@ -510,36 +514,10 @@ export class FormMaxlengthProgressElement extends HTMLElement {
 				'data-form-maxlength-progress-description',
 				'',
 			);
-			this._descriptionElement.className =
-				'form-maxlength-progress-visually-hidden';
+			this._descriptionElement.hidden = true;
+		}
+		if (!this.contains(this._descriptionElement)) {
 			this.append(this._descriptionElement);
-		}
-
-		if (!this._statusRegion) {
-			this._statusRegion = document.createElement('span');
-			this._statusRegion.setAttribute('role', 'status');
-			this._statusRegion.setAttribute('aria-live', 'polite');
-			this._statusRegion.setAttribute('aria-atomic', 'true');
-			this._statusRegion.setAttribute(
-				'data-form-maxlength-progress-status',
-				'',
-			);
-			this._statusRegion.className =
-				'form-maxlength-progress-visually-hidden';
-			this.append(this._statusRegion);
-		}
-
-		if (!this._alertRegion) {
-			this._alertRegion = document.createElement('span');
-			this._alertRegion.setAttribute('role', 'alert');
-			this._alertRegion.setAttribute(
-				'data-form-maxlength-progress-alert',
-				'',
-			);
-			this._alertRegion.className =
-				'form-maxlength-progress-visually-hidden';
-			this._alertRegion.hidden = true;
-			this.append(this._alertRegion);
 		}
 	}
 
@@ -564,6 +542,7 @@ export class FormMaxlengthProgressElement extends HTMLElement {
 			'data-form-maxlength-progress-generated-counter',
 			'',
 		);
+		this._counter.setAttribute('aria-hidden', 'true');
 		this.append(this._counter);
 	}
 
@@ -684,7 +663,11 @@ export class FormMaxlengthProgressElement extends HTMLElement {
 				'data-form-maxlength-progress-generated-counter',
 			);
 			this._counter.textContent = isGenerated ? label : String(remaining);
-			this._counter.setAttribute('aria-label', label);
+			if (isGenerated) {
+				this._counter.removeAttribute('aria-label');
+			} else {
+				this._counter.setAttribute('aria-label', label);
+			}
 		}
 		if (this._progress) {
 			this._progress.max = maximum;
@@ -716,15 +699,17 @@ export class FormMaxlengthProgressElement extends HTMLElement {
 				this._statusRegion.textContent = '';
 			}
 		}
-		if (remaining > 0) {
+		if (remaining !== 0) {
 			this._limitAlertAnnounced = false;
+		}
+		if (remaining > 0) {
 			this._hideAlert();
 		}
 		if (remaining >= 0) {
 			this._exceededAlertAnnounced = false;
 		}
 
-		if (!announce) {
+		if (!announce || this._field.value.length === 0) {
 			return;
 		}
 
@@ -1081,11 +1066,9 @@ export class FormMaxlengthProgressElement extends HTMLElement {
 
 	_removeSupportElements() {
 		this._descriptionElement?.remove();
-		this._statusRegion?.remove();
-		this._alertRegion?.remove();
 		this._descriptionElement = null;
-		this._statusRegion = null;
-		this._alertRegion = null;
+		this._statusRegion.textContent = '';
+		this._hideAlert();
 	}
 
 	_restoreHooks() {
@@ -1159,7 +1142,7 @@ export class FormMaxlengthProgressElement extends HTMLElement {
 					display: none;
 				}
 
-				::slotted(.form-maxlength-progress-visually-hidden) {
+				.form-maxlength-progress-visually-hidden {
 					border: 0;
 					clip: rect(0 0 0 0);
 					clip-path: inset(50%);
@@ -1173,6 +1156,19 @@ export class FormMaxlengthProgressElement extends HTMLElement {
 				}
 			</style>
 			<slot></slot>
+			<span
+				class="form-maxlength-progress-visually-hidden"
+				role="status"
+				aria-live="polite"
+				aria-atomic="true"
+				data-form-maxlength-progress-status
+			></span>
+			<span
+				class="form-maxlength-progress-visually-hidden"
+				role="alert"
+				data-form-maxlength-progress-alert
+				hidden
+			></span>
 		`;
 	}
 }

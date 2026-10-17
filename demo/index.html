@@ -98,10 +98,12 @@
 				<h2>Default counter</h2>
 				<div class="demo-section">
 					<p>
-						The component associates a static limit description with
-						the field through <code>aria-describedby</code>. The
-						changing visible text remains separate to avoid
-						per-keystroke description announcements. The generated
+						The <code>description</code> template supplies both the
+						empty-field text and a native-hidden static description
+						associated through <code>aria-describedby</code>. The
+						changing generated counter is hidden from assistive
+						technology to avoid duplicate and per-keystroke
+						description announcements. The generated
 						<code
 							>[data-form-maxlength-progress-generated-counter]</code
 						>
@@ -110,7 +112,10 @@
 					</p>
 					<div class="code-demo-pair">
 						<pre><code>&lt;textarea id="message" maxlength="120"&gt;&lt;/textarea&gt;
-&lt;form-maxlength-progress for="message"&gt;
+&lt;form-maxlength-progress
+  for="message"
+  description="Write up to {maxlength} characters"
+&gt;
 &lt;/form-maxlength-progress&gt;</code></pre>
 						<div class="demo">
 							<div class="maxlength-field">
@@ -122,6 +127,7 @@
 								></textarea>
 								<form-maxlength-progress
 									for="message"
+									description="Write up to {maxlength} characters"
 								></form-maxlength-progress>
 							</div>
 						</div>
@@ -215,39 +221,54 @@
 			</section>
 
 			<section>
-				<h2>Localized overrun</h2>
+				<h2>French translation and overrun</h2>
 				<div class="demo-section">
 					<p>
-						Overrun removes native enforcement while the component
-						is active. The visible count can become negative while
-						the accessible label describes the positive amount over.
-						The field receives <code>aria-invalid="true"</code>
-						until its value returns within the limit.
+						The component inherits <code>lang</code> for plural
+						selection. Translate the description, remaining and
+						overrun labels, and reached/exceeded alerts together.
+						Overrun removes native enforcement and sets
+						<code>aria-invalid="true"</code> until the value returns
+						within the limit.
 					</p>
 					<div class="code-demo-pair">
-						<pre><code>&lt;form-maxlength-progress
-  for="short-note"
-  overrun="true"
-  label="{remaining} characters available"
-  label-one="{remaining} character available"
-  overrun-label="{remaining} characters too many"
-  overrun-label-one="{remaining} character too many"
-&gt;&lt;/form-maxlength-progress&gt;</code></pre>
-						<div class="demo">
-							<label for="short-note">Short note</label>
-							<textarea
-								id="short-note"
-								maxlength="40"
-								rows="4"
-							></textarea>
-							<form-maxlength-progress
-								for="short-note"
-								overrun="true"
-								label="{remaining} characters available"
-								label-one="{remaining} character available"
-								overrun-label="{remaining} characters too many"
-								overrun-label-one="{remaining} character too many"
-							></form-maxlength-progress>
+						<pre><code>&lt;div lang="fr"&gt;
+  &lt;label for="short-note"&gt;Note courte&lt;/label&gt;
+  &lt;textarea id="short-note" maxlength="40"&gt;&lt;/textarea&gt;
+  &lt;form-maxlength-progress
+    for="short-note"
+    overrun="true"
+    description="{maxlength} caractères maximum"
+    description-one="{maxlength} caractère maximum"
+    label="{remaining} caractères restants"
+    label-one="{remaining} caractère restant"
+    overrun-label="{remaining} caractères en trop"
+    overrun-label-one="{remaining} caractère en trop"
+    limit-reached-label="Limite de caractères atteinte"
+    limit-exceeded-label="Limite de caractères dépassée"
+  &gt;&lt;/form-maxlength-progress&gt;
+&lt;/div&gt;</code></pre>
+						<div class="demo" lang="fr">
+							<div class="maxlength-field">
+								<label for="short-note">Note courte</label>
+								<textarea
+									id="short-note"
+									maxlength="40"
+									rows="4"
+								></textarea>
+								<form-maxlength-progress
+									for="short-note"
+									overrun="true"
+									description="{maxlength} caractères maximum"
+									description-one="{maxlength} caractère maximum"
+									label="{remaining} caractères restants"
+									label-one="{remaining} caractère restant"
+									overrun-label="{remaining} caractères en trop"
+									overrun-label-one="{remaining} caractère en trop"
+									limit-reached-label="Limite de caractères atteinte"
+									limit-exceeded-label="Limite de caractères dépassée"
+								></form-maxlength-progress>
+							</div>
 						</div>
 					</div>
 				</div>

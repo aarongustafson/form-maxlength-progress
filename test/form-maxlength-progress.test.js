@@ -187,8 +187,9 @@ describe('FormMaxlengthProgressElement', () => {
 		await settle();
 
 		expect(element.getAttribute('label')).toBe('{remaining} available');
-		expect(element.firstElementChild.getAttribute('aria-label')).toBe(
-			'19 available',
+		expect(element.firstElementChild.textContent).toBe('19 available');
+		expect(element.firstElementChild.hasAttribute('aria-label')).toBe(
+			false,
 		);
 	});
 
@@ -223,9 +224,18 @@ describe('FormMaxlengthProgressElement', () => {
 			);
 
 			expect(counter.textContent).toBe('20 characters allowed');
+			expect(counter.getAttribute('aria-hidden')).toBe('true');
+			expect(counter.hasAttribute('aria-label')).toBe(false);
 			expect(getFieldDescription(field).textContent).toBe(
 				'20 characters allowed',
 			);
+			expect(getFieldDescription(field).hidden).toBe(true);
+			expect(element.children).toHaveLength(2);
+			expect(
+				element.querySelector(
+					'[data-form-maxlength-progress-status], [data-form-maxlength-progress-alert]',
+				),
+			).toBeNull();
 
 			field.value = 'hello';
 			field.dispatchEvent(new Event('input'));
@@ -267,17 +277,14 @@ describe('FormMaxlengthProgressElement', () => {
 
 			expect(counter).not.toBeNull();
 			expect(counter.textContent).toBe('7 characters remaining');
-			expect(counter.getAttribute('aria-label')).toBe(
-				'7 characters remaining',
-			);
+			expect(counter.getAttribute('aria-hidden')).toBe('true');
+			expect(counter.hasAttribute('aria-label')).toBe(false);
 
 			field.value = '123456789';
 			field.dispatchEvent(new Event('input', { bubbles: true }));
 
 			expect(counter.textContent).toBe('1 character remaining');
-			expect(counter.getAttribute('aria-label')).toBe(
-				'1 character remaining',
-			);
+			expect(counter.hasAttribute('aria-label')).toBe(false);
 		});
 
 		it('uses UTF-16 code units like native maxlength', async () => {
@@ -300,13 +307,11 @@ describe('FormMaxlengthProgressElement', () => {
 			});
 			const counter = element.firstElementChild;
 
-			expect(counter.getAttribute('aria-label')).toBe('Only 1 char');
+			expect(counter.textContent).toBe('Only 1 char');
 
 			field.value = 'a';
 			field.dispatchEvent(new Event('input'));
-			expect(counter.getAttribute('aria-label')).toBe(
-				'2 chars; 2 available',
-			);
+			expect(counter.textContent).toBe('2 chars; 2 available');
 		});
 
 		it('uses Intl.PluralRules categories for the component language', async () => {
@@ -319,9 +324,7 @@ describe('FormMaxlengthProgressElement', () => {
 			document.body.append(element);
 			await settle();
 
-			expect(element.firstElementChild.getAttribute('aria-label')).toBe(
-				'3 znaki',
-			);
+			expect(element.firstElementChild.textContent).toBe('3 znaki');
 		});
 
 		it('reacts to label attributes and reflected properties', async () => {
@@ -331,9 +334,7 @@ describe('FormMaxlengthProgressElement', () => {
 			element.label = '{remaining} left';
 			await settle();
 			expect(element.label).toBe('{remaining} left');
-			expect(element.firstElementChild.getAttribute('aria-label')).toBe(
-				'7 left',
-			);
+			expect(element.firstElementChild.textContent).toBe('7 left');
 
 			element.labelOne = 'One left';
 			expect(element.getAttribute('label-one')).toBe('One left');
@@ -368,7 +369,7 @@ describe('FormMaxlengthProgressElement', () => {
 			field.value = '1234567890';
 			field.dispatchEvent(new Event('input'));
 
-			const status = element.querySelector(
+			const status = element.shadowRoot.querySelector(
 				'[data-form-maxlength-progress-status]',
 			);
 			expect(status.getAttribute('role')).toBe('status');
@@ -389,7 +390,7 @@ describe('FormMaxlengthProgressElement', () => {
 				}),
 			);
 
-			const alert = element.querySelector(
+			const alert = element.shadowRoot.querySelector(
 				'[data-form-maxlength-progress-alert]',
 			);
 			expect(element.ariaNotify).not.toHaveBeenCalled();
@@ -415,7 +416,7 @@ describe('FormMaxlengthProgressElement', () => {
 				}),
 			);
 
-			const alert = element.querySelector(
+			const alert = element.shadowRoot.querySelector(
 				'[data-form-maxlength-progress-alert]',
 			);
 			expect(element.ariaNotify).not.toHaveBeenCalled();
@@ -429,7 +430,7 @@ describe('FormMaxlengthProgressElement', () => {
 				for: field.id,
 				overrun: 'true',
 			});
-			const alert = element.querySelector(
+			const alert = element.shadowRoot.querySelector(
 				'[data-form-maxlength-progress-alert]',
 			);
 
@@ -449,7 +450,7 @@ describe('FormMaxlengthProgressElement', () => {
 				for: field.id,
 				'limit-reached-label': 'Maximum reached',
 			});
-			const alert = element.querySelector(
+			const alert = element.shadowRoot.querySelector(
 				'[data-form-maxlength-progress-alert]',
 			);
 
@@ -468,6 +469,29 @@ describe('FormMaxlengthProgressElement', () => {
 			field.dispatchEvent(new Event('input'));
 			expect(alert.hidden).toBe(false);
 			expect(alert.textContent).toBe('Maximum reached');
+		});
+
+		it('announces reached after returning from an overrun', async () => {
+			const field = createField({ maxlength: 2 });
+			const element = await createElement({
+				for: field.id,
+				overrun: 'true',
+			});
+			const alert = element.shadowRoot.querySelector(
+				'[data-form-maxlength-progress-alert]',
+			);
+
+			field.value = 'ab';
+			field.dispatchEvent(new Event('input'));
+			expect(alert.textContent).toBe('Character limit reached');
+
+			field.value = 'abc';
+			field.dispatchEvent(new Event('input'));
+			expect(alert.textContent).toBe('Character limit exceeded');
+
+			field.value = 'ab';
+			field.dispatchEvent(new Event('input'));
+			expect(alert.textContent).toBe('Character limit reached');
 		});
 
 		it('rearms warnings after leaving their range', async () => {
@@ -497,6 +521,15 @@ describe('FormMaxlengthProgressElement', () => {
 				'4 characters remaining',
 				{ priority: 'normal' },
 			);
+
+			field.value = '';
+			field.dispatchEvent(new Event('input'));
+			field.dispatchEvent(new Event('change'));
+			expect(element.ariaNotify).toHaveBeenCalledTimes(1);
+
+			field.value = 'a';
+			field.dispatchEvent(new Event('input'));
+			expect(element.ariaNotify).toHaveBeenCalledTimes(2);
 		});
 
 		it('defers notification until IME composition ends', async () => {
@@ -806,15 +839,13 @@ describe('FormMaxlengthProgressElement', () => {
 				'overrun-label-one': 'Exactly {remaining} too many',
 			});
 
-			expect(element.firstElementChild.getAttribute('aria-label')).toBe(
+			expect(element.firstElementChild.textContent).toBe(
 				'Exactly 1 too many',
 			);
 
 			field.value = 'abcde';
 			field.dispatchEvent(new Event('input'));
-			expect(element.firstElementChild.getAttribute('aria-label')).toBe(
-				'3 too many',
-			);
+			expect(element.firstElementChild.textContent).toBe('3 too many');
 		});
 
 		it('keeps the last percentage token when custom stops omit overrun', async () => {
@@ -998,17 +1029,27 @@ describe('FormMaxlengthProgressElement', () => {
 			await settle();
 
 			const first = element.firstElementChild;
-			const replacement = document.createElement('strong');
-			replacement.id = 'remaining';
-			replacement.textContent = 'Second';
-			first.replaceWith(replacement);
+			element.innerHTML = '<strong id="remaining">Second</strong>';
 			await settle();
 
+			const replacement = element.querySelector('#remaining');
 			expect(first.textContent).toBe('First');
 			expect(replacement.textContent).toBe('7');
 			expect(replacement.getAttribute('aria-label')).toBe(
 				'7 characters remaining',
 			);
+			expect(getFieldDescription(field)).not.toBeNull();
+			expect(getFieldDescription(field).hidden).toBe(true);
+			expect(
+				element.shadowRoot.querySelector(
+					'[data-form-maxlength-progress-status]',
+				).isConnected,
+			).toBe(true);
+			expect(
+				element.shadowRoot.querySelector(
+					'[data-form-maxlength-progress-alert]',
+				).isConnected,
+			).toBe(true);
 		});
 
 		it('does not duplicate generated UI, descriptions, or listeners after reconnect', async () => {
