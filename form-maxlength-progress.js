@@ -34,6 +34,7 @@ let generatedId = 0;
  * @attr {string} overrun-label - Accessible label template for overrun counts.
  * @attr {string} limit-reached-label - Alert announced when the limit is reached.
  * @attr {string} limit-exceeded-label - Alert announced when the limit is exceeded.
+ * @fires form-maxlength-progress:notification - Fired when the component announces a near-limit, reached, or exceeded message.
  * @slot - Authored counter, progress, and surrounding content.
  */
 export class FormMaxlengthProgressElement extends HTMLElement {
@@ -44,7 +45,6 @@ export class FormMaxlengthProgressElement extends HTMLElement {
 			'progress',
 			'proximity-values',
 			'description',
-			...PLURAL_CATEGORIES.map((category) => `description-${category}`),
 			'overrun',
 			'overrun-label',
 			...PLURAL_CATEGORIES.map((category) => `overrun-label-${category}`),
@@ -92,10 +92,6 @@ export class FormMaxlengthProgressElement extends HTMLElement {
 			'progress',
 			'proximityValues',
 			'description',
-			...PLURAL_CATEGORIES.map(
-				(category) =>
-					`description${category[0].toUpperCase()}${category.slice(1)}`,
-			),
 			'overrun',
 			'overrunLabel',
 			...PLURAL_CATEGORIES.map(
@@ -186,46 +182,6 @@ export class FormMaxlengthProgressElement extends HTMLElement {
 
 	set description(value) {
 		this._reflectStringAttribute('description', value);
-	}
-
-	get descriptionZero() {
-		return this.getAttribute('description-zero');
-	}
-
-	set descriptionZero(value) {
-		this._reflectStringAttribute('description-zero', value);
-	}
-
-	get descriptionOne() {
-		return this.getAttribute('description-one');
-	}
-
-	set descriptionOne(value) {
-		this._reflectStringAttribute('description-one', value);
-	}
-
-	get descriptionTwo() {
-		return this.getAttribute('description-two');
-	}
-
-	set descriptionTwo(value) {
-		this._reflectStringAttribute('description-two', value);
-	}
-
-	get descriptionFew() {
-		return this.getAttribute('description-few');
-	}
-
-	set descriptionFew(value) {
-		this._reflectStringAttribute('description-few', value);
-	}
-
-	get descriptionMany() {
-		return this.getAttribute('description-many');
-	}
-
-	set descriptionMany(value) {
-		this._reflectStringAttribute('description-many', value);
 	}
 
 	get overrunLabel() {
@@ -524,6 +480,15 @@ export class FormMaxlengthProgressElement extends HTMLElement {
 			this.append(this._descriptionElement);
 		}
 
+		this._syncNotificationFallbacks();
+	}
+
+	_syncNotificationFallbacks() {
+		if (typeof this.ariaNotify === 'function') {
+			this._removeNotificationFallbacks();
+			return;
+		}
+
 		if (!this._statusRegion) {
 			this._statusRegion = document.createElement('span');
 			this._statusRegion.setAttribute('role', 'status');
@@ -534,8 +499,8 @@ export class FormMaxlengthProgressElement extends HTMLElement {
 				'',
 			);
 		}
-		if (!this.contains(this._statusRegion)) {
-			this.append(this._statusRegion);
+		if (!this.shadowRoot.contains(this._statusRegion)) {
+			this.shadowRoot.append(this._statusRegion);
 		}
 
 		if (!this._alertRegion) {
@@ -547,9 +512,16 @@ export class FormMaxlengthProgressElement extends HTMLElement {
 			);
 			this._alertRegion.hidden = true;
 		}
-		if (!this.contains(this._alertRegion)) {
-			this.append(this._alertRegion);
+		if (!this.shadowRoot.contains(this._alertRegion)) {
+			this.shadowRoot.append(this._alertRegion);
 		}
+	}
+
+	_removeNotificationFallbacks() {
+		this._statusRegion?.remove();
+		this._alertRegion?.remove();
+		this._statusRegion = null;
+		this._alertRegion = null;
 	}
 
 	_createSupportId(suffix) {
@@ -745,7 +717,11 @@ export class FormMaxlengthProgressElement extends HTMLElement {
 
 		if (remaining < 0) {
 			if (!this._exceededAlertAnnounced) {
-				this._showAlert(this.limitExceededLabel);
+				this._showAlert(
+					this.limitExceededLabel,
+					'limit-exceeded',
+					remaining,
+				);
 				this._exceededAlertAnnounced = true;
 			}
 			return;
@@ -753,30 +729,59 @@ export class FormMaxlengthProgressElement extends HTMLElement {
 
 		if (remaining === 0) {
 			if (!this._limitAlertAnnounced) {
-				this._showAlert(this.limitReachedLabel);
+				this._showAlert(
+					this.limitReachedLabel,
+					'limit-reached',
+					remaining,
+				);
 				this._limitAlertAnnounced = true;
 			}
 			return;
 		}
 
 		if (remaining <= NEAR_LIMIT_THRESHOLD && !this._nearWarningAnnounced) {
-			this._notifyNearLimit(this._formatLabel(remaining));
+			this._announceNotification(
+				this._formatLabel(remaining),
+				'normal',
+				'near-limit',
+				remaining,
+			);
 			this._nearWarningAnnounced = true;
 		}
 	}
 
-	_notifyNearLimit(message) {
+	_announceNotification(message, priority, state, remaining) {
 		if (typeof this.ariaNotify === 'function') {
-			this.ariaNotify(message, { priority: 'normal' });
-			return;
+			this._removeNotificationFallbacks();
+			this.ariaNotify(message, { priority });
+		} else {
+			this._syncNotificationFallbacks();
+			const region =
+				priority === 'high' ? this._alertRegion : this._statusRegion;
+			region.textContent = message;
+			if (priority === 'high') {
+				region.hidden = false;
+			}
 		}
 
-		this._statusRegion.textContent = message;
+		this.dispatchEvent(
+			new CustomEvent('form-maxlength-progress:notification', {
+				bubbles: true,
+				composed: true,
+				detail: {
+					state,
+					message,
+					priority,
+					remaining,
+					maximum: this._maximum,
+					field: this._field,
+				},
+			}),
+		);
 	}
 
-	_showAlert(message) {
-		this._alertRegion.textContent = message;
-		this._alertRegion.hidden = false;
+	_showAlert(message, state, remaining) {
+		this._announceNotification(message, 'high', state, remaining);
 	}
 
 	_hideAlert() {
@@ -950,18 +955,11 @@ export class FormMaxlengthProgressElement extends HTMLElement {
 	}
 
 	_formatDescription() {
-		const language =
-			this.lang ||
-			this.closest('[lang]')?.getAttribute('lang') ||
-			document.documentElement.lang ||
-			undefined;
-		const category = new Intl.PluralRules(language).select(this._maximum);
-		const categoryTemplate = this.getAttribute(`description-${category}`);
-		let template = categoryTemplate || this.getAttribute('description');
+		let template = this.getAttribute('description');
 
 		if (!template) {
 			template =
-				category === 'one'
+				this._maximum === 1
 					? '{maxlength} character allowed'
 					: '{maxlength} characters allowed';
 		}
@@ -1096,11 +1094,8 @@ export class FormMaxlengthProgressElement extends HTMLElement {
 
 	_removeSupportElements() {
 		this._descriptionElement?.remove();
-		this._statusRegion?.remove();
-		this._alertRegion?.remove();
 		this._descriptionElement = null;
-		this._statusRegion = null;
-		this._alertRegion = null;
+		this._removeNotificationFallbacks();
 	}
 
 	_restoreHooks() {
@@ -1174,8 +1169,8 @@ export class FormMaxlengthProgressElement extends HTMLElement {
 					display: none;
 				}
 
-				::slotted([data-form-maxlength-progress-status]),
-				::slotted([data-form-maxlength-progress-alert]) {
+				[data-form-maxlength-progress-status],
+				[data-form-maxlength-progress-alert] {
 					border: 0;
 					clip: rect(0 0 0 0);
 					clip-path: inset(50%);

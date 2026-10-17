@@ -230,9 +230,9 @@ describe('FormMaxlengthProgressElement', () => {
 				'20 characters allowed',
 			);
 			expect(getFieldDescription(field).hidden).toBe(true);
-			expect(element.children).toHaveLength(4);
+			expect(element.children).toHaveLength(2);
 			expect(
-				element.querySelector(
+				element.shadowRoot.querySelector(
 					'[data-form-maxlength-progress-status], [data-form-maxlength-progress-alert]',
 				),
 			).not.toBeNull();
@@ -246,23 +246,17 @@ describe('FormMaxlengthProgressElement', () => {
 			expect(counter.textContent).toBe('20 characters allowed');
 		});
 
-		it('supports pluralized description templates and reflected properties', async () => {
+		it('uses a singular default and supports a custom description', async () => {
 			const field = createField({ maxlength: 1 });
 			const element = await createElement({
 				for: field.id,
-				description: '{maxlength} characters allowed',
-				'description-one': '{maxlength} character allowed',
 			});
 
 			expect(element.description).toBe('{maxlength} characters allowed');
-			expect(element.descriptionOne).toBe(
-				'{maxlength} character allowed',
-			);
 			expect(element.firstElementChild.textContent).toBe(
 				'1 character allowed',
 			);
 
-			element.descriptionOne = null;
 			element.description = 'Maximum: {maxlength}';
 			await settle();
 			expect(element.firstElementChild.textContent).toBe('Maximum: 1');
@@ -372,6 +366,22 @@ describe('FormMaxlengthProgressElement', () => {
 	});
 
 	describe('sparse announcements', () => {
+		it('does not create fallback regions when ariaNotify is available', async () => {
+			const field = createField({ maxlength: 20 });
+			const element = document.createElement('form-maxlength-progress');
+			element.ariaNotify = vi.fn();
+			element.setAttribute('for', field.id);
+			document.body.append(element);
+			await settle();
+
+			expect(
+				element.shadowRoot.querySelector(
+					'[data-form-maxlength-progress-status], [data-form-maxlength-progress-alert]',
+				),
+			).toBeNull();
+			expect(element.children).toHaveLength(2);
+		});
+
 		it('uses ariaNotify once when input enters the final ten characters', async () => {
 			const field = createField({ maxlength: 20 });
 			const element = await createElement({ for: field.id });
@@ -397,17 +407,22 @@ describe('FormMaxlengthProgressElement', () => {
 			field.value = '1234567890';
 			field.dispatchEvent(new Event('input'));
 
-			const status = element.querySelector(
+			const status = element.shadowRoot.querySelector(
 				'[data-form-maxlength-progress-status]',
 			);
 			expect(status.getAttribute('role')).toBe('status');
 			expect(status.textContent).toBe('10 characters remaining');
 		});
 
-		it('alerts at the limit without also sending a near-limit warning', async () => {
+		it('uses a high-priority notification at the limit without a near-limit warning', async () => {
 			const field = createField({ maxlength: 20 });
 			const element = await createElement({ for: field.id });
 			element.ariaNotify = vi.fn();
+			const handler = vi.fn();
+			element.addEventListener(
+				'form-maxlength-progress:notification',
+				handler,
+			);
 
 			field.value = '12345678901234567890';
 			field.dispatchEvent(
@@ -418,15 +433,26 @@ describe('FormMaxlengthProgressElement', () => {
 				}),
 			);
 
-			const alert = element.querySelector(
-				'[data-form-maxlength-progress-alert]',
+			expect(element.ariaNotify).toHaveBeenCalledTimes(1);
+			expect(element.ariaNotify).toHaveBeenCalledWith(
+				'Character limit reached',
+				{ priority: 'high' },
 			);
-			expect(element.ariaNotify).not.toHaveBeenCalled();
-			expect(alert.hidden).toBe(false);
-			expect(alert.textContent).toBe('Character limit reached');
+			expect(
+				element.shadowRoot.querySelector(
+					'[data-form-maxlength-progress-alert]',
+				),
+			).toBeNull();
+			expect(handler.mock.calls[0][0].detail).toMatchObject({
+				state: 'limit-reached',
+				priority: 'high',
+				remaining: 0,
+				maximum: 20,
+				field,
+			});
 		});
 
-		it('alerts when a paste directly exceeds an overrun-enabled limit', async () => {
+		it('uses a high-priority notification when a paste directly exceeds an overrun-enabled limit', async () => {
 			const field = createField({ maxlength: 5 });
 			const element = await createElement({
 				for: field.id,
@@ -434,6 +460,11 @@ describe('FormMaxlengthProgressElement', () => {
 				'limit-exceeded-label': 'Too many characters',
 			});
 			element.ariaNotify = vi.fn();
+			const handler = vi.fn();
+			element.addEventListener(
+				'form-maxlength-progress:notification',
+				handler,
+			);
 
 			field.value = '1234567';
 			field.dispatchEvent(
@@ -444,11 +475,17 @@ describe('FormMaxlengthProgressElement', () => {
 				}),
 			);
 
-			const alert = element.querySelector(
-				'[data-form-maxlength-progress-alert]',
+			expect(element.ariaNotify).toHaveBeenCalledWith(
+				'Too many characters',
+				{ priority: 'high' },
 			);
-			expect(element.ariaNotify).not.toHaveBeenCalled();
-			expect(alert.textContent).toBe('Too many characters');
+			expect(handler.mock.calls[0][0].detail).toMatchObject({
+				state: 'limit-exceeded',
+				priority: 'high',
+				remaining: -2,
+				maximum: 5,
+				field,
+			});
 			expect(field.getAttribute('aria-invalid')).toBe('true');
 		});
 
@@ -458,7 +495,7 @@ describe('FormMaxlengthProgressElement', () => {
 				for: field.id,
 				overrun: 'true',
 			});
-			const alert = element.querySelector(
+			const alert = element.shadowRoot.querySelector(
 				'[data-form-maxlength-progress-alert]',
 			);
 
@@ -478,7 +515,7 @@ describe('FormMaxlengthProgressElement', () => {
 				for: field.id,
 				'limit-reached-label': 'Maximum reached',
 			});
-			const alert = element.querySelector(
+			const alert = element.shadowRoot.querySelector(
 				'[data-form-maxlength-progress-alert]',
 			);
 
@@ -505,7 +542,7 @@ describe('FormMaxlengthProgressElement', () => {
 				for: field.id,
 				overrun: 'true',
 			});
-			const alert = element.querySelector(
+			const alert = element.shadowRoot.querySelector(
 				'[data-form-maxlength-progress-alert]',
 			);
 
@@ -520,6 +557,33 @@ describe('FormMaxlengthProgressElement', () => {
 			field.value = 'ab';
 			field.dispatchEvent(new Event('input'));
 			expect(alert.textContent).toBe('Character limit reached');
+		});
+
+		it('dispatches a bubbling composed event for each notification milestone', async () => {
+			const field = createField({ maxlength: 20 });
+			const element = await createElement({ for: field.id });
+			element.ariaNotify = vi.fn();
+			const handler = vi.fn();
+			document.body.addEventListener(
+				'form-maxlength-progress:notification',
+				handler,
+			);
+
+			field.value = '1234567890';
+			field.dispatchEvent(new Event('input'));
+
+			expect(handler).toHaveBeenCalledTimes(1);
+			const [event] = handler.mock.calls[0];
+			expect(event.bubbles).toBe(true);
+			expect(event.composed).toBe(true);
+			expect(event.detail).toEqual({
+				state: 'near-limit',
+				message: '10 characters remaining',
+				priority: 'normal',
+				remaining: 10,
+				maximum: 20,
+				field,
+			});
 		});
 
 		it('rearms warnings after leaving their range', async () => {
@@ -1072,12 +1136,14 @@ describe('FormMaxlengthProgressElement', () => {
 			expect(getFieldDescription(field)).not.toBeNull();
 			expect(getFieldDescription(field).hidden).toBe(true);
 			expect(
-				element.querySelector('[data-form-maxlength-progress-status]')
-					.isConnected,
+				element.shadowRoot.querySelector(
+					'[data-form-maxlength-progress-status]',
+				).isConnected,
 			).toBe(true);
 			expect(
-				element.querySelector('[data-form-maxlength-progress-alert]')
-					.isConnected,
+				element.shadowRoot.querySelector(
+					'[data-form-maxlength-progress-alert]',
+				).isConnected,
 			).toBe(true);
 		});
 

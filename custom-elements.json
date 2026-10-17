@@ -37,36 +37,6 @@
 						},
 						{
 							"kind": "field",
-							"name": "descriptionZero",
-							"type": { "text": "string | null" },
-							"attribute": "description-zero"
-						},
-						{
-							"kind": "field",
-							"name": "descriptionOne",
-							"type": { "text": "string | null" },
-							"attribute": "description-one"
-						},
-						{
-							"kind": "field",
-							"name": "descriptionTwo",
-							"type": { "text": "string | null" },
-							"attribute": "description-two"
-						},
-						{
-							"kind": "field",
-							"name": "descriptionFew",
-							"type": { "text": "string | null" },
-							"attribute": "description-few"
-						},
-						{
-							"kind": "field",
-							"name": "descriptionMany",
-							"type": { "text": "string | null" },
-							"attribute": "description-many"
-						},
-						{
-							"kind": "field",
 							"name": "proximityValues",
 							"type": { "text": "string" },
 							"attribute": "proximity-values"
@@ -192,32 +162,6 @@
 							"default": "{maxlength} characters allowed"
 						},
 						{
-							"name": "description-zero",
-							"description": "Optional Intl.PluralRules zero-category description template.",
-							"type": { "text": "string" }
-						},
-						{
-							"name": "description-one",
-							"description": "Optional Intl.PluralRules one-category description template.",
-							"type": { "text": "string" },
-							"default": "{maxlength} character allowed"
-						},
-						{
-							"name": "description-two",
-							"description": "Optional Intl.PluralRules two-category description template.",
-							"type": { "text": "string" }
-						},
-						{
-							"name": "description-few",
-							"description": "Optional Intl.PluralRules few-category description template.",
-							"type": { "text": "string" }
-						},
-						{
-							"name": "description-many",
-							"description": "Optional Intl.PluralRules many-category description template.",
-							"type": { "text": "string" }
-						},
-						{
 							"name": "label",
 							"description": "Other-category count label template containing {remaining} and optionally {maxlength}.",
 							"type": { "text": "string" },
@@ -309,6 +253,15 @@
 							"description": "Alert text used when overrun-enabled input exceeds maxlength.",
 							"type": { "text": "string" },
 							"default": "Character limit exceeded"
+						}
+					],
+					"events": [
+						{
+							"name": "form-maxlength-progress:notification",
+							"description": "Fired when the component announces a near-limit, reached, or exceeded message.",
+							"type": {
+								"text": "CustomEvent<{ state: 'near-limit' | 'limit-reached' | 'limit-exceeded', message: string, priority: 'normal' | 'high', remaining: number, maximum: number, field: HTMLInputElement | HTMLTextAreaElement }>"
+							}
 						}
 					],
 					"slots": [

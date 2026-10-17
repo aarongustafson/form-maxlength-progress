@@ -3,7 +3,7 @@
 [![npm version](https://img.shields.io/npm/v/@aarongustafson/form-maxlength-progress.svg)](https://www.npmjs.com/package/@aarongustafson/form-maxlength-progress) [![Build Status](https://img.shields.io/github/actions/workflow/status/aarongustafson/form-maxlength-progress/ci.yml?branch=main)](https://github.com/aarongustafson/form-maxlength-progress/actions)
 
 `<form-maxlength-progress>` shows a user’s progress toward a field’s
-`maxlength`. It sits separately from the field, keeps authored UI in Light DOM,
+`maxlength`. It sits separately from the field, keeps authored UI in light DOM,
 exposes a styleable `proximity` state, and can optionally allow text to overrun
 the defined maximum.
 
@@ -83,22 +83,12 @@ The simplified, rendered Light DOM looks like this (though generated IDs vary):
     data-form-maxlength-progress-description
     hidden>
     280 characters allowed
-    </span>
-  <span
-    data-form-maxlength-progress-status
-    role="status"
-    aria-live="polite"
-    aria-atomic="true"
-    >
-    <!-- polite announcements will go here -->
-  </span>
-  <span data-form-maxlength-progress-alert role="alert" hidden>
-    <!-- if a user hits the limit, the announcement will go here -->
   </span>
 </form-maxlength-progress>
 ```
 
-All generated UI remains in Light DOM and uses consistent `data-*` attributes to make styling easier.
+The visible counter and static description remain in light DOM and use
+consistent `data-*` attributes to make styling easier.
 
 ## Authored counters and progress elements
 
@@ -121,12 +111,12 @@ the elements, add your own style hooks, rearrange the contents, and more.
 ```
 
 The component replaces the counter’s text with the numeric remaining value and
-sets its `aria-label` to the complete accessible label. When a counter and
+sets its `aria-label` to the full accessible label. When a counter and
 `<progress>` are both present, the component makes `<progress>` `aria-hidden`
 to avoid duplicate semantics. A `<progress>`-only UI receives the accessible
 label directly.
 
-Authored markup stays in Light DOM and can be styled normally. If the component
+Authored markup stays in light DOM and can be styled normally. If the component
 disconnects or stops using an authored element, it restores that element’s
 original text, ARIA attributes, and progress values.
 
@@ -143,38 +133,32 @@ form-maxlength-progress:not(:defined) {
 
 To customize the text the component shows, use `description` for the
 empty-field state and `label` for the countdown state. `{maxlength}` is
-available in both templates; `{remaining}` is available in count labels. For
-grammatical variations, the component supports plural-category attributes
-(e.g., `label-one`):
+available in both templates; `{remaining}` is available in count labels. The
+component supports plural-category attributes for count labels (e.g.,
+`label-one`):
 
 ```html
 <form-maxlength-progress
   for="message"
   description="{maxlength} characters allowed"
-  description-one="{maxlength} character allowed"
   label="{remaining} characters left"
   label-one="{remaining} character left"
 ></form-maxlength-progress>
 ```
 
-Plural selection uses `Intl.PluralRules` and the component’s inherited
-language. The optional category attributes are:
+Plural selection uses `Intl.PluralRules` and the language the component
+inherits. The optional category attributes are:
 
-- `description-zero`
-- `description-one`
-- `description-two`
-- `description-few`
-- `description-many`
 - `label-zero`
 - `label-one`
 - `label-two`
 - `label-few`
 - `label-many`
 
-Missing description categories fall back to `description`; missing count
-categories fall back to `label`. Without custom values, the empty-field
-defaults are “1 character allowed” and “X characters allowed,” and the count
-defaults are “1 character remaining” and “X characters remaining.”
+Missing count categories fall back to `label`. Without a custom `description`,
+the empty-field default uses “1 character allowed” when `maxlength` is exactly
+1 and “X characters allowed” otherwise. The count defaults are “1 character
+remaining” and “X characters remaining.”
 
 ## Proximity states
 
@@ -278,7 +262,6 @@ the component observes the reflected attribute and resets itself accordingly.
 | `counter`                  | `counter`                                   | `""`                                          | Authored counter descendant ID reference          |
 | `progress`                 | `progress`                                  | `""`                                          | Authored `progress` descendant ID reference       |
 | `description`              | `description`                               | `{maxlength} characters allowed`              | Empty-field and static field-description template |
-| `description-{category}`   | `descriptionZero`, `descriptionOne`, etc.   | category fallback                             | Description plural-category templates             |
 | `label`                    | `label`                                     | `{remaining} characters remaining`            | Normal `other` label template                     |
 | `label-{category}`         | `labelZero`, `labelOne`, etc.               | category fallback                             | Normal plural-category templates                  |
 | `proximity-values`         | `proximityValues`                           | `far 0%, close 75%, target 100%, overrun`     | Custom lower-bound stops                          |
@@ -286,11 +269,29 @@ the component observes the reflected attribute and resets itself accordingly.
 | `overrun`                  | `overrun`                                   | `false`                                       | Enabled only by the exact string `true`           |
 | `overrun-label`            | `overrunLabel`                              | `{remaining} characters over the max length.` | Overrun `other` template                          |
 | `overrun-label-{category}` | `overrunLabelZero`, `overrunLabelOne`, etc. | category fallback                             | Overrun plural-category templates                 |
-| `limit-reached-label`      | `limitReachedLabel`                         | `Character limit reached`                     | Alert text when the limit is reached              |
-| `limit-exceeded-label`     | `limitExceededLabel`                        | `Character limit exceeded`                    | Alert text when overrun crosses the limit         |
+| `limit-reached-label`      | `limitReachedLabel`                         | `Character limit reached`                     | Notification text when the limit is reached       |
+| `limit-exceeded-label`     | `limitExceededLabel`                        | `Character limit exceeded`                    | Notification text when overrun crosses the limit  |
 
 The `overrun` property is boolean. Setting it writes `"true"` or `"false"` to
 the attribute.
+
+## Events
+
+The component dispatches `form-maxlength-progress:notification` for each
+notification milestone. The event bubbles and is composed, so you can listen
+for it from an ancestor:
+
+```javascript
+document.addEventListener('form-maxlength-progress:notification', (event) => {
+  const { state, message, priority, remaining, maximum, field } = event.detail;
+  console.log({ state, message, priority, remaining, maximum, field });
+});
+```
+
+The event’s `detail` is
+`{ state, message, priority, remaining, maximum, field }`. `state` is
+`near-limit`, `limit-reached`, or `limit-exceeded`. `priority` is `normal` or
+`high`, and `field` is the associated field.
 
 ## Styling
 
@@ -307,15 +308,13 @@ If you don’t bring your own markup, you can target the counter through its
 
 ### Styling hooks
 
-All generated elements are in Light DOM. These `data-*` attributes and state
-selectors are stable styling hooks:
+The visible generated counter and static description are in light DOM. These
+`data-*` attributes and state selectors are stable styling hooks:
 
 | Selector                                                      | Element and state                                                         |
 | ------------------------------------------------------------- | ------------------------------------------------------------------------- |
 | `[data-form-maxlength-progress-generated-counter]`            | Visible generated text, both the at-rest description and active countdown |
-| `[data-form-maxlength-progress-description]`                  | Native-hidden static text referenced by the field’s `aria-describedby`    |
-| `[data-form-maxlength-progress-status]`                       | Polite near-limit fallback used when `ariaNotify()` is unavailable        |
-| `[data-form-maxlength-progress-alert]`                        | Reached/exceeded alert; `hidden` until active                             |
+| `[data-form-maxlength-progress-description]`                  | Static `hidden` text referenced by the field’s `aria-describedby`            |
 | `form-maxlength-progress[proximity='…']`                      | Component host at the current configured proximity stop                   |
 | `textarea[aria-invalid='true']`, `input[aria-invalid='true']` | Associated overrun-enabled field while above its maximum                  |
 | `textarea[data-maxlength]`, `input[data-maxlength]`           | Associated field while native `maxlength` is moved aside for overrun      |
@@ -346,9 +345,7 @@ form-maxlength-progress[proximity='overrun'] {
 ```
 
 The description must remain hidden because it supplies the field’s static
-assistive-technology text. The component visually hides the status and alert
-through their data attributes. Use those hooks to make them visible, but
-respect `[hidden]` so inactive alerts aren’t shown.
+assistive-technology text.
 
 Reminder: The component hides authored contents after upgrade until all
 references validate. To prevent those elements from flashing before the custom
@@ -359,7 +356,6 @@ form-maxlength-progress:not(:defined) {
   display: none;
 }
 ```
-
 
 ## Accessibility details
 
@@ -372,16 +368,21 @@ The component includes these accessibility considerations:
 - The generated counter is `aria-hidden`; authored counters retain the
   accessible text and ARIA supplied by the component.
 - Upon reaching the final 10 characters, the component sends a polite
-  notification. It uses `ariaNotify()` with a `role="status"` fallback.
-- Reaching the limit triggers an alert. With overrun enabled,
-  crossing the limit triggers an exceeded alert instead.
+  normal-priority notification.
+- Reaching the limit sends a high-priority notification. With overrun enabled,
+  a value that crosses the limit sends a high-priority “exceeded” notification
+  instead.
+- The component uses `ariaNotify()` with `normal` or `high` priority for every
+  milestone. When `ariaNotify()` is unavailable, the component creates
+  DOM-based fallbacks inside its shadow root.
 - Paste, autofill-style input, deletion and re-entry, and
   [IME-based composition](https://en.wikipedia.org/wiki/Input_method) are all
   supported; jumps to or beyond the limit don’t send the near-limit warning.
 - Initialization and configuration changes don’t produce notifications.
 
-Use `limit-reached-label` and `limit-exceeded-label` to localize the alert text.
-The remaining-count `label` supplies the localized near-limit notification.
+Use `limit-reached-label` and `limit-exceeded-label` to localize the
+high-priority notification text. The remaining-count `label` supplies the
+localized near-limit notification.
 
 Color alone shouldn’t communicate proximity. Pair it with text and a structural
 cue, and preserve the associated field’s focus outline.
