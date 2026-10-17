@@ -230,12 +230,12 @@ describe('FormMaxlengthProgressElement', () => {
 				'20 characters allowed',
 			);
 			expect(getFieldDescription(field).hidden).toBe(true);
-			expect(element.children).toHaveLength(2);
+			expect(element.children).toHaveLength(4);
 			expect(
 				element.querySelector(
 					'[data-form-maxlength-progress-status], [data-form-maxlength-progress-alert]',
 				),
-			).toBeNull();
+			).not.toBeNull();
 
 			field.value = 'hello';
 			field.dispatchEvent(new Event('input'));
@@ -369,7 +369,7 @@ describe('FormMaxlengthProgressElement', () => {
 			field.value = '1234567890';
 			field.dispatchEvent(new Event('input'));
 
-			const status = element.shadowRoot.querySelector(
+			const status = element.querySelector(
 				'[data-form-maxlength-progress-status]',
 			);
 			expect(status.getAttribute('role')).toBe('status');
@@ -390,7 +390,7 @@ describe('FormMaxlengthProgressElement', () => {
 				}),
 			);
 
-			const alert = element.shadowRoot.querySelector(
+			const alert = element.querySelector(
 				'[data-form-maxlength-progress-alert]',
 			);
 			expect(element.ariaNotify).not.toHaveBeenCalled();
@@ -416,7 +416,7 @@ describe('FormMaxlengthProgressElement', () => {
 				}),
 			);
 
-			const alert = element.shadowRoot.querySelector(
+			const alert = element.querySelector(
 				'[data-form-maxlength-progress-alert]',
 			);
 			expect(element.ariaNotify).not.toHaveBeenCalled();
@@ -430,7 +430,7 @@ describe('FormMaxlengthProgressElement', () => {
 				for: field.id,
 				overrun: 'true',
 			});
-			const alert = element.shadowRoot.querySelector(
+			const alert = element.querySelector(
 				'[data-form-maxlength-progress-alert]',
 			);
 
@@ -450,7 +450,7 @@ describe('FormMaxlengthProgressElement', () => {
 				for: field.id,
 				'limit-reached-label': 'Maximum reached',
 			});
-			const alert = element.shadowRoot.querySelector(
+			const alert = element.querySelector(
 				'[data-form-maxlength-progress-alert]',
 			);
 
@@ -477,7 +477,7 @@ describe('FormMaxlengthProgressElement', () => {
 				for: field.id,
 				overrun: 'true',
 			});
-			const alert = element.shadowRoot.querySelector(
+			const alert = element.querySelector(
 				'[data-form-maxlength-progress-alert]',
 			);
 
@@ -1041,14 +1041,12 @@ describe('FormMaxlengthProgressElement', () => {
 			expect(getFieldDescription(field)).not.toBeNull();
 			expect(getFieldDescription(field).hidden).toBe(true);
 			expect(
-				element.shadowRoot.querySelector(
-					'[data-form-maxlength-progress-status]',
-				).isConnected,
+				element.querySelector('[data-form-maxlength-progress-status]')
+					.isConnected,
 			).toBe(true);
 			expect(
-				element.shadowRoot.querySelector(
-					'[data-form-maxlength-progress-alert]',
-				).isConnected,
+				element.querySelector('[data-form-maxlength-progress-alert]')
+					.isConnected,
 			).toBe(true);
 		});
 

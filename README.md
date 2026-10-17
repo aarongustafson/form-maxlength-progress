@@ -72,11 +72,26 @@ The simplified rendered Light DOM looks like this (generated IDs vary):
     hidden
     >280 characters allowed</span
   >
+  <span
+    data-form-maxlength-progress-status
+    class="form-maxlength-progress-visually-hidden"
+    role="status"
+    aria-live="polite"
+    aria-atomic="true"
+  ></span>
+  <span
+    data-form-maxlength-progress-alert
+    class="form-maxlength-progress-visually-hidden"
+    role="alert"
+    hidden
+  ></span>
 </form-maxlength-progress>
 ```
 
-The polite status fallback and limit alert are implementation details in the
-component's shadow root rather than additional Light DOM content.
+All generated UI remains in Light DOM. The changing counter and support regions
+have stable data-attribute hooks for direct styling. The static description
+uses native `hidden`, while the empty status region and hidden alert do not add
+duplicate content.
 
 The generated counter data attribute is a supported styling hook:
 
