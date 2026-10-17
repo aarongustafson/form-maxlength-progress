@@ -77,6 +77,16 @@
 				margin-block: 0.5rem 1rem;
 				user-select: all;
 			}
+
+			.event-output {
+				background: ButtonFace;
+				border: 1px solid ButtonBorder;
+				border-radius: 0.25rem;
+				margin: 1rem 0 0;
+				min-block-size: 7lh;
+				padding: 1rem;
+				white-space: pre-wrap;
+			}
 		</style>
 	</head>
 	<body>
@@ -271,6 +281,51 @@
 					</div>
 				</div>
 			</section>
+
+			<section>
+				<h2>Event handling</h2>
+				<div class="demo-section">
+					<p>
+						Listen for
+						<code>form-maxlength-progress:notification</code> to
+						respond when the field nears, reaches, or exceeds its
+						limit. The event’s detail includes its milestone state,
+						message, priority, remaining count, maximum, and
+						associated field.
+					</p>
+					<div class="code-demo-pair">
+						<pre><code>document
+  .querySelector('#event-progress')
+  .addEventListener(
+    'form-maxlength-progress:notification',
+    (event) =&gt; {
+      console.log(event.detail);
+    }
+  );</code></pre>
+						<div class="demo">
+							<div class="maxlength-field">
+								<label for="event-message"
+									>Notification event</label
+								>
+								<textarea
+									id="event-message"
+									maxlength="20"
+									rows="3"
+								></textarea>
+								<form-maxlength-progress
+									id="event-progress"
+									for="event-message"
+									overrun="true"
+								></form-maxlength-progress>
+							</div>
+							<pre
+								id="event-output"
+								class="event-output"
+							>Waiting for a notification milestone…</pre>
+						</div>
+					</div>
+				</div>
+			</section>
 		</main>
 
 		<footer>
@@ -281,5 +336,29 @@
 		</footer>
 
 		<script src="../define.js" type="module"></script>
+		<script type="module">
+			document
+				.querySelector('#event-progress')
+				.addEventListener(
+					'form-maxlength-progress:notification',
+					(event) => {
+						const { state, message, priority, remaining, maximum } =
+							event.detail;
+						document.querySelector('#event-output').textContent =
+							JSON.stringify(
+								{
+									state,
+									message,
+									priority,
+									remaining,
+									maximum,
+									field: `#${event.detail.field.id}`,
+								},
+								null,
+								2,
+							);
+					},
+				);
+		</script>
 	</body>
 </html>
