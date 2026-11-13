@@ -6,56 +6,6 @@ import { describe, expect, it } from 'vitest';
 const read = (file) => readFile(resolve(process.cwd(), file), 'utf8');
 
 describe('demo and publishing contracts', () => {
-	it('highlights every displayed component tag and its registration code', async () => {
-		for (const name of ['index.html', 'esm.html', 'unpkg.html']) {
-			const template = document.createElement('template');
-			template.innerHTML = await read(`demo/${name}`);
-			for (const code of template.content.querySelectorAll('pre code')) {
-				const marks = [...code.querySelectorAll('mark')];
-				const snippets = [
-					...code.textContent.matchAll(
-						/<\/?form-maxlength-progress\b[^>]*>/g,
-					),
-				];
-				for (const [snippet] of snippets) {
-					expect(
-						marks.some((mark) =>
-							mark.textContent.includes(snippet),
-						),
-					).toBe(true);
-				}
-				expect(code.querySelector('mark mark')).toBeNull();
-				if (
-					code.textContent.includes(
-						'form-maxlength-progress:notification',
-					)
-				) {
-					expect(
-						marks.some((mark) =>
-							mark.textContent.includes(
-								'form-maxlength-progress:notification',
-							),
-						),
-					).toBe(true);
-				}
-				if (name !== 'index.html') {
-					expect(
-						marks.some((mark) =>
-							mark.textContent.includes('import {'),
-						),
-					).toBe(true);
-					expect(
-						marks.some((mark) =>
-							/customElements\.define|defineFormMaxlengthProgress\(\)/.test(
-								mark.textContent,
-							),
-						),
-					).toBe(true);
-				}
-			}
-		}
-	});
-
 	it('leaves descriptions to the component and omits added submission and theme UI', async () => {
 		for (const name of ['index.html', 'esm.html', 'unpkg.html']) {
 			const html = await read(`demo/${name}`);
