@@ -25,7 +25,7 @@ createServer(async (request, response) => {
 	const path = resolve(root, `.${pathname}`);
 	if (
 		!path.startsWith(`${resolve(root)}${sep}`) ||
-		path.includes(`${sep}.`)
+		pathname.split('/').some((part) => part.startsWith('.'))
 	) {
 		response.writeHead(403).end();
 		return;

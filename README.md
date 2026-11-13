@@ -380,11 +380,12 @@ reading surfaces with `CanvasText`/`Canvas`, fields and code blocks with
 system colors. The footer uses an 80% foreground mix on Canvas, with
 full-strength text in forced colors and increased contrast.
 
-The demos use an offset `CanvasText` focus outline on Canvas surrounds,
-full-strength field boundaries, dotted underlining near the limit, bold text
-at or above it, and double borders for invalid overrun fields. Counts and
-authored, translatable messages carry the meaning without color. These are demo
-styles, not runtime defaults or new component configuration.
+The demos use an offset `CanvasText` focus outline on Canvas surrounds and
+full-strength field boundaries. Near the limit, the count changes color; at or
+above it, the count becomes bold and the field’s solid border thickens. Forced
+colors also make warnings bold and reached/exceeded counts underlined. Counts
+and authored, translatable messages carry the meaning without color. These are
+demo styles, not runtime defaults or new component configuration.
 
 Leave `<progress>` native when possible. The authored progress example keeps
 the browser’s track and fill alongside a readable remaining count; it doesn’t
@@ -392,11 +393,10 @@ depend on an accent fill. When both `counter` and `progress` are supplied, the
 component hides the progress element from assistive technology to avoid
 duplicate information. A progress-only example receives the formatted label.
 
-The French demo’s optional warm theme pairs `#431407` text, boundaries, and focus
-with `#fff7ed` reading and `#ffffff` field surfaces. Forced colors restore
-system pairs without disabling automatic adjustment. If you change a theme,
-test its text, boundary, and focus colors together, including hover, limit,
-overrun, and recovery states. System-color names alone don’t guarantee contrast.
+The French demo uses the same system-color surfaces and light/dark count colors
+as the other examples. If you author a custom theme, test its text, boundary,
+and focus colors together, including hover, limit, overrun, and recovery states.
+System-color names alone don’t guarantee contrast.
 
 Reminder: The component hides authored contents after upgrade until all
 references validate. To prevent those elements from flashing before the custom
@@ -438,11 +438,12 @@ localized near-limit notification.
 Color alone shouldn’t communicate proximity. Pair it with text and a structural
 cue, and preserve the associated field’s focus outline.
 
-Keep authored visible limit instructions outside the component, and associate
-them with the field using `aria-describedby`. The component preserves those
-references. If JavaScript is unavailable or a module fails, the field, its
-label, instructions, and native `maxlength` remain usable; overrun is only
-enabled after upgrade. The demos include those fallbacks on every import page.
+If you provide visible limit instructions, keep them outside the component and
+associate them with the field using `aria-describedby`. The component preserves
+those references. The demos rely on the component’s own resting and changing
+descriptions rather than adding separate instructions. If JavaScript is
+unavailable or a module fails, their fields, labels, and native `maxlength`
+remain usable; overrun is only enabled after upgrade.
 
 ## Invalid configuration
 
