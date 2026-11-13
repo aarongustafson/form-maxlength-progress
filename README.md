@@ -1,6 +1,10 @@
 # form-maxlength-progress Web Component
 
-[![npm version](https://img.shields.io/npm/v/@aarongustafson/form-maxlength-progress.svg)](https://www.npmjs.com/package/@aarongustafson/form-maxlength-progress) [![Build Status](https://img.shields.io/github/actions/workflow/status/aarongustafson/form-maxlength-progress/ci.yml?branch=main)](https://github.com/aarongustafson/form-maxlength-progress/actions)
+[![npm version](https://img.shields.io/npm/v/@aarongustafson/form-maxlength-progress.svg)](https://www.npmjs.com/package/@aarongustafson/form-maxlength-progress)
+[![CI status](https://img.shields.io/github/actions/workflow/status/aarongustafson/form-maxlength-progress/ci.yml?branch=main&label=CI)](https://github.com/aarongustafson/form-maxlength-progress/actions/workflows/ci.yml)
+[![Minified + gzipped size](https://img.shields.io/bundlejs/size/@aarongustafson/form-maxlength-progress?format=minzip&label=min%2Bgzip)](https://bundlejs.com/?q=@aarongustafson/form-maxlength-progress)
+[![License](https://img.shields.io/npm/l/@aarongustafson/form-maxlength-progress)](https://github.com/aarongustafson/form-maxlength-progress/blob/main/LICENSE)
+[![Type definitions](https://img.shields.io/npm/types/@aarongustafson/form-maxlength-progress)](https://github.com/aarongustafson/form-maxlength-progress/blob/main/form-maxlength-progress.d.ts)
 
 `<form-maxlength-progress>` shows a user’s progress toward a field’s
 `maxlength`. It sits separately from the field, keeps authored UI in light DOM,
