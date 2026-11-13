@@ -168,7 +168,7 @@ toward the `maxlength`:
 
 ```css
 form-maxlength-progress[proximity='close'] {
-  text-decoration: underline dotted;
+  color: light-dark(#8a4b00, #fbbf24);
 }
 
 form-maxlength-progress[proximity='target'],
@@ -334,7 +334,23 @@ form-maxlength-progress[proximity='close'] {
 
 form-maxlength-progress[proximity='target'],
 form-maxlength-progress[proximity='overrun'] {
+  color: light-dark(#b91c1c, #fda4af);
   font-weight: bold;
+}
+
+@media (forced-colors: active) {
+  form-maxlength-progress:is(
+    [proximity='close'],
+    [proximity='target'],
+    [proximity='overrun']
+  ) {
+    color: CanvasText;
+    font-weight: bold;
+  }
+
+  form-maxlength-progress:is([proximity='target'], [proximity='overrun']) {
+    text-decoration: underline;
+  }
 }
 
 .maxlength-field:has(
@@ -347,6 +363,13 @@ form-maxlength-progress[proximity='overrun'] {
 
 The description must remain hidden because it supplies the field’s static
 assistive-technology text.
+
+The demos use contrasting amber and red variants on their light/dark Canvas
+surfaces. Recheck both foreground/background pairs when authoring another theme.
+Forced colors use bold warning text and bold, underlined reached/exceeded text.
+The component supplies its own resting description and changing count; the demos
+do not add a second description beside it. Their code blocks mark the
+component-specific markup and registration code without changing the sample text.
 
 ### Pair surfaces and keep native progress
 
@@ -446,7 +469,7 @@ npm run format
 Browser tests run Chromium, Firefox, and WebKit with one worker on port 4188.
 Install their engines with `npx playwright install` when needed. Tests cover
 19 distinct recorded study palettes, light/dark schemes, increased contrast,
-supported forced-color emulation, keyboard focus, native form submission,
+supported forced-color emulation, keyboard focus, non-submitting autofill checks,
 progress values, localized overrun/recovery, module failure, no JavaScript,
 and 320px reflow with enlarged text. CDN tests substitute local source; they
 don’t prove CDN availability. A narrowly scoped expected failure tracks

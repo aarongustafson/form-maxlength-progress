@@ -23,35 +23,28 @@
 					This page loads the guarded definition helper from
 					<code>unpkg</code>. The field allows overrun and receives
 					<code>aria-invalid="true"</code> above its limit. Remaining
-					and over-limit text, bold type, and a double field boundary
-					supplement native semantics. Without JavaScript or if the
-					CDN fails, the labeled field, visible limit, and native
+					and over-limit text, contrasting state colors, and a thicker
+					field boundary supplement native semantics. Without
+					JavaScript or if the CDN fails, the labeled field and native
 					maxlength enforcement remain.
 				</p>
 
 				<div class="code-demo-pair">
 					<pre><code>&lt;label for="unpkg-message"&gt;Message&lt;/label&gt;
-&lt;textarea id="unpkg-message" maxlength="30"
-  aria-describedby="unpkg-help"&gt;&lt;/textarea&gt;
-&lt;small id="unpkg-help"&gt;Up to 30 characters.&lt;/small&gt;
-&lt;form-maxlength-progress for="unpkg-message" overrun="true"&gt;
-&lt;/form-maxlength-progress&gt;
+&lt;textarea id="unpkg-message" maxlength="30"&gt;&lt;/textarea&gt;
+<mark>&lt;form-maxlength-progress for="unpkg-message" overrun="true"&gt;
+&lt;/form-maxlength-progress&gt;</mark>
 
-import { defineFormMaxlengthProgress } from
+<mark>import { defineFormMaxlengthProgress } from
   'https://unpkg.com/@aarongustafson/form-maxlength-progress@latest/define.js?module';
-defineFormMaxlengthProgress();</code></pre>
+defineFormMaxlengthProgress();</mark></code></pre>
 					<div class="demo">
 						<div class="maxlength-field">
 							<label for="unpkg-message">Message</label>
 							<textarea
 								id="unpkg-message"
 								maxlength="30"
-								aria-describedby="unpkg-help"
 							></textarea>
-							<small id="unpkg-help"
-								>Up to 30 characters. With enhancement, extra
-								text is allowed and marked invalid.</small
-							>
 							<form-maxlength-progress
 								for="unpkg-message"
 								overrun="true"

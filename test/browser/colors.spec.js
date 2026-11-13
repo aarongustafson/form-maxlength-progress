@@ -130,7 +130,7 @@ async function demo(page, name = 'index.html') {
 	).toBeVisible();
 }
 
-test('all pages have readable feedback, paired examples, and persistent maximum instructions', async ({
+test('all pages use component descriptions without duplicate authored help', async ({
 	page,
 }) => {
 	for (const name of ['index.html', 'esm.html', 'unpkg.html']) {
@@ -145,13 +145,17 @@ test('all pages have readable feedback, paired examples, and persistent maximum 
 			const help = await field.getAttribute('aria-describedby');
 			expect(help).toBeTruthy();
 			const ids = help.split(/\s+/);
-			let visibleHelp = false;
-			for (const id of ids) {
-				if (await page.locator(`[id="${id}"]`).isVisible())
-					visibleHelp = true;
-			}
-			expect(visibleHelp).toBe(true);
+			expect(ids).toHaveLength(1);
+			await expect(page.locator(`[id="${ids[0]}"]`)).toHaveAttribute(
+				'data-form-maxlength-progress-description',
+				'',
+			);
+			await expect(page.locator(`[id="${ids[0]}"]`)).toBeHidden();
 		}
+		await expect(page.locator('.demo small')).toHaveCount(0);
+		await expect(
+			page.getByRole('button', { name: 'Submit address' }),
+		).toHaveCount(0);
 		for (const section of await page.locator('.demo-section').all()) {
 			await expect(section.locator('.code-demo-pair > pre')).toHaveCount(
 				1,
@@ -160,6 +164,72 @@ test('all pages have readable feedback, paired examples, and persistent maximum 
 				section.locator('.code-demo-pair > .demo'),
 			).toHaveCount(1);
 		}
+	}
+});
+
+for (const colorScheme of ['light', 'dark']) {
+	test(`${colorScheme}: counters retain contrasting warning and limit colors`, async ({
+		page,
+	}) => {
+		await page.emulateMedia({ colorScheme });
+		await demo(page);
+		const field = page.locator('#message');
+		const counter = page.locator('form-maxlength-progress[for="message"]');
+		const colors = [];
+		for (const length of [0, 100, 120]) {
+			await field.fill('x'.repeat(length));
+			colors.push(
+				await counter.evaluate((node) => getComputedStyle(node).color),
+			);
+			expect((await measurements(counter)).text).toBeGreaterThanOrEqual(
+				4.5,
+			);
+			await expect(counter).toHaveCSS('text-decoration-line', 'none');
+		}
+		expect(colors[1]).not.toBe(colors[0]);
+		expect(colors[2]).not.toBe(colors[1]);
+		await expect(field).toHaveCSS('border-top-width', '3px');
+		await page.locator('#short-note').fill('x'.repeat(41));
+		await expect(
+			page.locator('form-maxlength-progress[for="short-note"]'),
+		).toHaveCSS('color', colors[2]);
+	});
+}
+
+test('forced colors use bold warning and bold underlined limit text with solid surfaces', async ({
+	page,
+	browserName,
+}) => {
+	test.skip(
+		browserName === 'webkit',
+		'WebKit does not emulate forced colors.',
+	);
+	await page.emulateMedia({ forcedColors: 'active' });
+	await demo(page);
+	const counter = page.locator('form-maxlength-progress[for="message"]');
+	await page.locator('#message').fill('x'.repeat(100));
+	await expect(counter).toHaveCSS('font-weight', '700');
+	await expect(counter).toHaveCSS('text-decoration-line', 'none');
+	await page.locator('#message').fill('x'.repeat(120));
+	await expect(counter).toHaveCSS('font-weight', '700');
+	await expect(counter).toHaveCSS('text-decoration-line', 'underline');
+	const fieldColor = await page.locator('#message').evaluate(() => {
+		const probe = document.createElement('span');
+		probe.style.color = 'Field';
+		document.body.append(probe);
+		const color = getComputedStyle(probe).color;
+		probe.remove();
+		return color;
+	});
+	for (const selector of ['#message', 'pre', '.event-output']) {
+		await expect(page.locator(selector).first()).toHaveCSS(
+			'background-image',
+			'none',
+		);
+		await expect(page.locator(selector).first()).toHaveCSS(
+			'background-color',
+			fieldColor,
+		);
 	}
 });
 
@@ -176,7 +246,7 @@ for (const colorScheme of ['light', 'dark']) {
 			'.demo',
 			'pre',
 			'footer',
-			'small',
+			'pre code mark',
 			'#message',
 			'form-maxlength-progress[for="message"]',
 		]) {
@@ -186,7 +256,7 @@ for (const colorScheme of ['light', 'dark']) {
 			).toBeGreaterThanOrEqual(4.5);
 		}
 	});
-	test(`${colorScheme}: native button pair is tested separately`, async ({
+	test(`${colorScheme}: native inline-code pair is tested separately`, async ({
 		page,
 		browserName,
 	}) => {
@@ -199,7 +269,7 @@ for (const colorScheme of ['light', 'dark']) {
 		await demo(page);
 		await page.emulateMedia({ colorScheme });
 		expect(
-			(await measurements(page.locator('button[type="submit"]'))).text,
+			(await measurements(page.locator('header code'))).text,
 		).toBeGreaterThanOrEqual(4.5);
 	});
 }
@@ -210,7 +280,13 @@ test('all 19 study palettes retain reading, feedback, boundary, and focus contra
 	await demo(page);
 	const css = await read('demo/styles.css');
 	const style = await page.addStyleTag({ content: css });
+	await page.locator('#short-note').fill('x'.repeat(41));
 	for (const palette of palettes) {
+		await page.emulateMedia({
+			colorScheme: ['#ffffff', '#fffaef'].includes(palette[0])
+				? 'light'
+				: 'dark',
+		});
 		await style.evaluate(
 			(style, css) => {
 				style.textContent = css;
@@ -226,11 +302,11 @@ test('all 19 study palettes retain reading, feedback, boundary, and focus contra
 				'pre',
 				'code',
 				'footer',
-				'small',
+				'pre code mark',
 				'#message',
 				'form-maxlength-progress[for="message"]',
-				'.custom-theme',
-				'.custom-theme textarea',
+				'form-maxlength-progress[for="short-note"]',
+				'#short-note',
 			]) {
 				expect(
 					(await measurements(page.locator(selector).first())).text,
@@ -238,32 +314,24 @@ test('all 19 study palettes retain reading, feedback, boundary, and focus contra
 				).toBeGreaterThanOrEqual(4.5);
 			}
 		}
-		for (const selector of [
-			'#message',
-			'.custom-theme textarea',
-			'button[type="submit"]',
-		]) {
+		for (const selector of ['#message', '#short-note']) {
 			const field = page.locator(selector);
 			await field.focus();
 			const result = await measurements(field);
 			expect(result.boundary).toBeGreaterThanOrEqual(3);
 			expect(result.outline).toBeGreaterThanOrEqual(3);
 		}
-		const button = page.locator('button[type="submit"]');
-		for (const hover of [false, true]) {
-			if (hover) await button.hover();
-			expect((await measurements(button)).text).toBeGreaterThanOrEqual(
-				4.5,
-			);
-		}
 	}
 });
 
-test('native keyboard, names, limits, and form submission survive enhancement', async ({
+test('native keyboard, descriptions, limits, and non-submitting autofill checks survive enhancement', async ({
 	page,
 }) => {
 	await demo(page);
 	const field = page.getByRole('textbox', { name: 'Message', exact: true });
+	await expect(
+		page.locator('form-maxlength-progress[for="message"]'),
+	).toContainText('Write up to 120 characters');
 	await field.focus();
 	await page.keyboard.type('x'.repeat(125));
 	await expect(field).toHaveValue('x'.repeat(120));
@@ -274,15 +342,28 @@ test('native keyboard, names, limits, and form submission survive enhancement', 
 	await expect(
 		page.locator('form-maxlength-progress[for="message"]'),
 	).toContainText('0 characters remaining');
-	await expect(field).toHaveAccessibleDescription(/Up to 120 characters/);
+	await expect(field).toHaveAccessibleDescription(
+		'Write up to 120 characters',
+	);
 	await expect(field).toHaveCSS('outline-style', 'solid');
 	expect((await measurements(field)).outline).toBeGreaterThanOrEqual(3);
 	await page.keyboard.press('Tab');
 	await expect(page.locator('#paste-check')).toBeFocused();
+	const initialURL = page.url();
+	const submissions = [];
+	page.on('request', (request) => {
+		if (
+			request.isNavigationRequest() ||
+			request.url().includes('street-address=')
+		)
+			submissions.push(request.url());
+	});
 	await page.locator('#address-check').fill('12 Example Road');
 	await page.locator('#address-check').focus();
 	await page.keyboard.press('Enter');
-	await expect(page).toHaveURL(/street-address=12\+Example\+Road/);
+	await expect(page).toHaveURL(initialURL);
+	await expect(page.locator('#address-check')).toHaveValue('12 Example Road');
+	expect(submissions).toEqual([]);
 });
 
 test('localized overrun retains entered text, non-color cues, and recovery without moving focus', async ({
@@ -294,14 +375,14 @@ test('localized overrun retains entered text, non-color cues, and recovery witho
 	await field.fill('x'.repeat(41));
 	await expect(field).toHaveValue('x'.repeat(41));
 	await expect(field).toHaveAttribute('aria-invalid', 'true');
-	await expect(field).toHaveCSS('border-top-style', 'double');
+	await expect(field).toHaveCSS('border-top-style', 'solid');
 	await expect(feedback).toContainText('1 caractère en trop');
 	await expect(feedback).toHaveCSS('font-weight', '700');
 	await expect(field).toBeFocused();
 	await field.fill('x'.repeat(30));
 	await expect(field).not.toHaveAttribute('aria-invalid');
 	await expect(feedback).toContainText('10 caractères restants');
-	await expect(feedback).toHaveCSS('text-decoration-style', 'dotted');
+	await expect(feedback).toHaveCSS('text-decoration-line', 'none');
 	await expect(field).toBeFocused();
 });
 
@@ -335,7 +416,7 @@ test('native progress supplements the authored localized count without duplicate
 
 for (const name of ['index.html', 'esm.html', 'unpkg.html']) {
 	for (const failure of ['no JavaScript', 'module failure']) {
-		test(`${name}: ${failure} keeps native fields and visible limits`, async ({
+		test(`${name}: ${failure} keeps native maxlength without extra descriptions`, async ({
 			browser,
 		}) => {
 			const context = await browser.newContext({
@@ -353,15 +434,22 @@ for (const name of ['index.html', 'esm.html', 'unpkg.html']) {
 			const field = page.locator('textarea').first();
 			const maximum = Number(await field.getAttribute('maxlength'));
 			await expect(field).toHaveAccessibleName('Message');
-			await expect(field).toHaveAccessibleDescription(
-				/Up to \d+ characters/,
-			);
+			await expect(field).toHaveAccessibleDescription('');
 			await field.focus();
 			await page.keyboard.type('x'.repeat(maximum + 3));
 			await expect(field).toHaveValue('x'.repeat(maximum));
 			await expect(
 				page.locator('form-maxlength-progress').first(),
 			).toBeHidden();
+			if (name === 'index.html') {
+				const initialURL = page.url();
+				await page.locator('#address-check').fill('12 Example Road');
+				await page.locator('#address-check').press('Enter');
+				await expect(page).toHaveURL(initialURL);
+				await expect(page.locator('#address-check')).toHaveValue(
+					'12 Example Road',
+				);
+			}
 			await context.close();
 		});
 	}
@@ -414,7 +502,7 @@ for (const contrast of ['more', 'forced']) {
 		await expect(page.locator('#short-note')).toBeFocused();
 		await expect(page.locator('#short-note')).toHaveCSS(
 			'border-top-style',
-			'double',
+			'solid',
 		);
 		await expect(
 			page.locator('form-maxlength-progress[for="short-note"]'),
@@ -425,11 +513,7 @@ for (const contrast of ['more', 'forced']) {
 				.locator('#summary-meter')
 				.evaluate((element) => getComputedStyle(element).appearance),
 		).not.toBe('none');
-		for (const selector of [
-			'.custom-theme',
-			'.custom-theme textarea',
-			'footer',
-		]) {
+		for (const selector of ['.demo[lang="fr"]', '#short-note', 'footer']) {
 			expect(
 				(await measurements(page.locator(selector))).text,
 			).toBeGreaterThanOrEqual(4.5);

@@ -351,8 +351,7 @@ form-maxlength-progress {
 }
 
 form-maxlength-progress:is([proximity='close'], [proximity='warning']) {
-	text-decoration: underline;
-	text-decoration-style: dotted;
+	color: light-dark(#8a4b00, #fbbf24);
 }
 
 form-maxlength-progress:is(
@@ -360,11 +359,22 @@ form-maxlength-progress:is(
 	[proximity='overrun'],
 	[proximity='exceeded']
 ) {
+	color: light-dark(#b91c1c, #fda4af);
 	font-weight: bold;
 }
 
 :is(textarea, input)[aria-invalid='true'] {
-	border-style: double;
+	border-width: 3px;
+}
+
+.maxlength-field:has(
+		form-maxlength-progress:is(
+			[proximity='target'],
+			[proximity='overrun'],
+			[proximity='exceeded']
+		)
+	)
+	:is(input, textarea) {
 	border-width: 3px;
 }
 
@@ -396,21 +406,6 @@ form-maxlength-progress:is(
 	flex: 1 1 8rem;
 	max-inline-size: 100%;
 	/* Keep native rendering; the authored count carries the same information. */
-}
-
-.custom-theme {
-	background: #fff7ed;
-	color: #431407;
-}
-
-.custom-theme textarea {
-	background: #ffffff;
-	color: #431407;
-	border-color: #431407;
-}
-
-.custom-theme :focus-visible {
-	outline-color: #431407;
 }
 
 .sample-text {
@@ -450,18 +445,46 @@ form-maxlength-progress:is(
 }
 
 @media (forced-colors: active) {
-	.custom-theme {
-		background: Canvas;
-		color: CanvasText;
+	code {
+		background: ButtonFace;
 	}
 
-	.custom-theme textarea {
+	pre,
+	.event-output,
+	input:not(
+		[type='checkbox'],
+		[type='radio'],
+		[type='submit'],
+		[type='reset']
+	),
+	select,
+	textarea {
 		background: Field;
-		color: FieldText;
-		border-color: FieldText;
 	}
 
-	.custom-theme :focus-visible {
-		outline-color: CanvasText;
+	button[type='submit'],
+	button[type='reset'],
+	button[type='submit']:hover,
+	button[type='reset']:hover {
+		background: ButtonFace;
+	}
+
+	form-maxlength-progress:is(
+		[proximity='close'],
+		[proximity='warning'],
+		[proximity='target'],
+		[proximity='overrun'],
+		[proximity='exceeded']
+	) {
+		color: CanvasText;
+		font-weight: bold;
+	}
+
+	form-maxlength-progress:is(
+		[proximity='target'],
+		[proximity='overrun'],
+		[proximity='exceeded']
+	) {
+		text-decoration: underline;
 	}
 }
