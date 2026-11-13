@@ -5,55 +5,66 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<title>form-maxlength-progress via esm.sh</title>
 		<link rel="stylesheet" href="./styles.css" />
-		<style>
-			form-maxlength-progress:not(:defined) {
-				display: none;
-			}
-
-			[data-form-maxlength-progress-generated-counter] {
-				font-variant-numeric: tabular-nums;
-			}
-
-			form-maxlength-progress[proximity='close'] {
-				color: darkorange;
-			}
-
-			form-maxlength-progress[proximity='target'] {
-				color: crimson;
-			}
-
-			.maxlength-field {
-				display: inline-grid;
-				max-inline-size: 100%;
-			}
-
-			.maxlength-field textarea {
-				box-sizing: border-box;
-				inline-size: 30rem;
-				max-inline-size: 100%;
-			}
-
-			.maxlength-field form-maxlength-progress {
-				display: block;
-				text-align: end;
-			}
-		</style>
 	</head>
 	<body>
-		<h1>esm.sh CDN sanity check</h1>
-		<p>
-			This page loads the component class from <code>esm.sh</code> and
-			registers it manually.
-		</p>
+		<header>
+			<h1>&lt;form-maxlength-progress&gt; via esm.sh</h1>
+			<p>
+				<a
+					href="https://github.com/aarongustafson/form-maxlength-progress#readme"
+					>README and API documentation</a
+				>
+			</p>
+		</header>
+		<main>
+			<section class="demo-section">
+				<h2>Class-only import and manual registration</h2>
+				<p>
+					This page loads the component class from
+					<code>esm.sh</code> and registers it manually. The labeled
+					field and visible limit work without JavaScript or if the
+					CDN fails; native maxlength still applies.
+				</p>
+				<div class="code-demo-pair">
+					<pre><code>&lt;label for="esm-message"&gt;Message&lt;/label&gt;
+&lt;textarea id="esm-message" maxlength="100"
+  aria-describedby="esm-help"&gt;&lt;/textarea&gt;
+&lt;small id="esm-help"&gt;Up to 100 characters.&lt;/small&gt;
+&lt;form-maxlength-progress for="esm-message"&gt;
+&lt;/form-maxlength-progress&gt;
 
-		<div class="maxlength-field">
-			<label for="esm-message">Message</label>
-			<textarea id="esm-message" maxlength="100"></textarea>
-			<form-maxlength-progress
-				for="esm-message"
-			></form-maxlength-progress>
-		</div>
+import { FormMaxlengthProgressElement } from
+  'https://esm.sh/@aarongustafson/form-maxlength-progress@1.1.1/form-maxlength-progress.js?bundle&amp;target=es2022';
 
+if (!customElements.get('form-maxlength-progress')) {
+  customElements.define(
+    'form-maxlength-progress',
+    FormMaxlengthProgressElement,
+  );
+}</code></pre>
+					<div class="demo">
+						<div class="maxlength-field">
+							<label for="esm-message">Message</label>
+							<textarea
+								id="esm-message"
+								maxlength="100"
+								aria-describedby="esm-help"
+							></textarea>
+							<small id="esm-help">Up to 100 characters.</small>
+							<form-maxlength-progress
+								for="esm-message"
+							></form-maxlength-progress>
+						</div>
+					</div>
+				</div>
+			</section>
+		</main>
+		<footer>
+			<p>
+				Made with ❤️ by
+				<a href="https://github.com/aarongustafson">Aaron Gustafson</a>.
+			</p>
+		</footer>
 		<script type="module">
 			import { FormMaxlengthProgressElement } from 'https://esm.sh/@aarongustafson/form-maxlength-progress@1.1.1/form-maxlength-progress.js?bundle&target=es2022';
 

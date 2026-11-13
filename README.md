@@ -74,14 +74,14 @@ The simplified, rendered Light DOM looks like this (though generated IDs vary):
   id="form-maxlength-progress-1"
   proximity="far"
 >
-  <span data-form-maxlength-progress-generated-counter
-        aria-hidden="true">
+  <span data-form-maxlength-progress-generated-counter aria-hidden="true">
     280 characters allowed
   </span>
   <span
     id="form-maxlength-progress-1-description"
     data-form-maxlength-progress-description
-    hidden>
+    hidden
+  >
     280 characters allowed
   </span>
 </form-maxlength-progress>
@@ -104,7 +104,8 @@ the elements, add your own style hooks, rearrange the contents, and more.
 <form-maxlength-progress
   for="summary"
   counter="summary-count"
-  progress="summary-progress">
+  progress="summary-progress"
+>
   <strong id="summary-count"></strong>
   <progress id="summary-progress"></progress>
 </form-maxlength-progress>
@@ -167,12 +168,12 @@ toward the `maxlength`:
 
 ```css
 form-maxlength-progress[proximity='close'] {
-  color: darkorange;
+  text-decoration: underline dotted;
 }
 
 form-maxlength-progress[proximity='target'],
 form-maxlength-progress[proximity='overrun'] {
-  color: crimson;
+  font-weight: bold;
 }
 ```
 
@@ -236,7 +237,8 @@ provides a field-level styling hook:
 
 ```css
 textarea[aria-invalid='true'] {
-  border-color: crimson;
+  border-style: double;
+  border-width: 3px;
 }
 ```
 
@@ -314,7 +316,7 @@ The visible generated counter and static description are in light DOM. These
 | Selector                                                      | Element and state                                                         |
 | ------------------------------------------------------------- | ------------------------------------------------------------------------- |
 | `[data-form-maxlength-progress-generated-counter]`            | Visible generated text, both the at-rest description and active countdown |
-| `[data-form-maxlength-progress-description]`                  | Static `hidden` text referenced by the field’s `aria-describedby`            |
+| `[data-form-maxlength-progress-description]`                  | Static `hidden` text referenced by the field’s `aria-describedby`         |
 | `form-maxlength-progress[proximity='…']`                      | Component host at the current configured proximity stop                   |
 | `textarea[aria-invalid='true']`, `input[aria-invalid='true']` | Associated overrun-enabled field while above its maximum                  |
 | `textarea[data-maxlength]`, `input[data-maxlength]`           | Associated field while native `maxlength` is moved aside for overrun      |
@@ -327,12 +329,11 @@ For example:
 }
 
 form-maxlength-progress[proximity='close'] {
-  color: darkorange;
+  text-decoration: underline dotted;
 }
 
 form-maxlength-progress[proximity='target'],
 form-maxlength-progress[proximity='overrun'] {
-  color: crimson;
   font-weight: bold;
 }
 
@@ -346,6 +347,33 @@ form-maxlength-progress[proximity='overrun'] {
 
 The description must remain hidden because it supplies the field’s static
 assistive-technology text.
+
+### Pair surfaces and keep native progress
+
+The component supplies no color palette. The [demos](./demo/index.html) pair
+reading surfaces with `CanvasText`/`Canvas`, fields and code blocks with
+`FieldText`/`Field`, and buttons and inline code with
+`ButtonText`/`ButtonFace`. Their Canvas backplates also support translucent
+system colors. The footer uses an 80% foreground mix on Canvas, with
+full-strength text in forced colors and increased contrast.
+
+The demos use an offset `CanvasText` focus outline on Canvas surrounds,
+full-strength field boundaries, dotted underlining near the limit, bold text
+at or above it, and double borders for invalid overrun fields. Counts and
+authored, translatable messages carry the meaning without color. These are demo
+styles, not runtime defaults or new component configuration.
+
+Leave `<progress>` native when possible. The authored progress example keeps
+the browser’s track and fill alongside a readable remaining count; it doesn’t
+depend on an accent fill. When both `counter` and `progress` are supplied, the
+component hides the progress element from assistive technology to avoid
+duplicate information. A progress-only example receives the formatted label.
+
+The French demo’s optional warm theme pairs `#431407` text, boundaries, and focus
+with `#fff7ed` reading and `#ffffff` field surfaces. Forced colors restore
+system pairs without disabling automatic adjustment. If you change a theme,
+test its text, boundary, and focus colors together, including hover, limit,
+overrun, and recovery states. System-color names alone don’t guarantee contrast.
 
 Reminder: The component hides authored contents after upgrade until all
 references validate. To prevent those elements from flashing before the custom
@@ -387,6 +415,12 @@ localized near-limit notification.
 Color alone shouldn’t communicate proximity. Pair it with text and a structural
 cue, and preserve the associated field’s focus outline.
 
+Keep authored visible limit instructions outside the component, and associate
+them with the field using `aria-describedby`. The component preserves those
+references. If JavaScript is unavailable or a module fails, the field, its
+label, instructions, and native `maxlength` remain usable; overrun is only
+enabled after upgrade. The demos include those fallbacks on every import page.
+
 ## Invalid configuration
 
 Invalid ID references, duplicate IDs, ineligible fields, invalid `maxlength`
@@ -404,9 +438,24 @@ without those APIs.
 npm install
 npm run test:run
 npm run test:coverage
+npm run test:browser
 npm run lint
 npm run format
 ```
+
+Browser tests run Chromium, Firefox, and WebKit with one worker on port 4188.
+Install their engines with `npx playwright install` when needed. Tests cover
+19 distinct recorded study palettes, light/dark schemes, increased contrast,
+supported forced-color emulation, keyboard focus, native form submission,
+progress values, localized overrun/recovery, module failure, no JavaScript,
+and 320px reflow with enlarged text. CDN tests substitute local source; they
+don’t prove CDN availability. A narrowly scoped expected failure tracks
+Ubuntu WebKit’s dark `ButtonText`/`ButtonFace` contrast.
+
+Palette substitution and browser emulation don’t prove Windows high-contrast
+repainting or assistive-technology behavior. Real OS themes, screen readers,
+browser zoom, saved-address autofill, and clipboard/IME checks still need human
+acceptance testing; these checks don’t establish accessibility conformance.
 
 ## License
 

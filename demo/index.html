@@ -5,89 +5,6 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<title>&lt;form-maxlength-progress&gt; Web Component Demo</title>
 		<link rel="stylesheet" href="./styles.css" />
-		<style>
-			form-maxlength-progress:not(:defined) {
-				display: none;
-			}
-
-			form-maxlength-progress {
-				margin-block-start: 0.5rem;
-			}
-
-			[data-form-maxlength-progress-generated-counter] {
-				font-variant-numeric: tabular-nums;
-			}
-
-			form-maxlength-progress[proximity='close'],
-			form-maxlength-progress[proximity='warning'] {
-				color: darkorange;
-			}
-
-			form-maxlength-progress[proximity='target'],
-			form-maxlength-progress[proximity='overrun'],
-			form-maxlength-progress[proximity='exceeded'] {
-				color: crimson;
-				font-weight: bold;
-			}
-
-			textarea[aria-invalid='true'],
-			input[aria-invalid='true'] {
-				border-color: crimson;
-				outline-color: crimson;
-			}
-
-			.custom-progress {
-				align-items: center;
-				display: flex;
-				gap: 0.75rem;
-				max-inline-size: 26rem;
-			}
-
-			.custom-progress progress {
-				flex: 1;
-			}
-
-			.maxlength-field {
-				display: inline-grid;
-				max-inline-size: 100%;
-			}
-
-			.maxlength-field input,
-			.maxlength-field textarea {
-				box-sizing: border-box;
-				min-inline-size: 26rem;
-				max-inline-size: 100%;
-				max-width: none;
-			}
-
-			.maxlength-field form-maxlength-progress {
-				display: block;
-				text-align: end;
-			}
-
-			.maxlength-field:has(form-maxlength-progress[proximity='target'])
-				:is(input, textarea),
-			.maxlength-field:has(form-maxlength-progress[proximity='overrun'])
-				:is(input, textarea) {
-				border-width: 3px;
-			}
-
-			.sample-text {
-				display: block;
-				margin-block: 0.5rem 1rem;
-				user-select: all;
-			}
-
-			.event-output {
-				background: ButtonFace;
-				border: 1px solid ButtonBorder;
-				border-radius: 0.25rem;
-				margin: 1rem 0 0;
-				min-block-size: 7lh;
-				padding: 1rem;
-				white-space: pre-wrap;
-			}
-		</style>
 	</head>
 	<body>
 		<header>
@@ -104,6 +21,14 @@
 		</header>
 
 		<main>
+			<p class="note">
+				The labeled fields, visible limits, and native maxlength
+				enforcement work without JavaScript or if the module fails to
+				load. After upgrade, the counter adds remaining or over-limit
+				text. Dotted underlining marks approaching limits; bold text
+				marks reached or exceeded limits. Only the overrun examples
+				relax native enforcement.
+			</p>
 			<section>
 				<h2>Default counter</h2>
 				<div class="demo-section">
@@ -121,7 +46,10 @@
 						hook.
 					</p>
 					<div class="code-demo-pair">
-						<pre><code>&lt;textarea id="message" maxlength="120"&gt;&lt;/textarea&gt;
+						<pre><code>&lt;label for="message"&gt;Message&lt;/label&gt;
+&lt;textarea id="message" maxlength="120"
+  aria-describedby="message-help"&gt;&lt;/textarea&gt;
+&lt;small id="message-help"&gt;Up to 120 characters.&lt;/small&gt;
 &lt;form-maxlength-progress
   for="message"
   description="Write up to {maxlength} characters"
@@ -134,7 +62,11 @@
 									id="message"
 									maxlength="120"
 									rows="5"
+									aria-describedby="message-help"
 								></textarea>
+								<small id="message-help"
+									>Up to 120 characters.</small
+								>
 								<form-maxlength-progress
 									for="message"
 									description="Write up to {maxlength} characters"
@@ -154,40 +86,75 @@
 						first field. Use saved address data in the second field
 						to check browser autofill.
 					</p>
-					<div class="demo">
-						<div class="maxlength-field">
-							<label for="paste-check">Paste check</label>
-							<code class="sample-text"
-								>This sample jumps beyond the forty character
-								limit.</code
-							>
-							<textarea
-								id="paste-check"
-								maxlength="40"
-								rows="3"
-							></textarea>
-							<form-maxlength-progress
-								for="paste-check"
-								overrun="true"
-							></form-maxlength-progress>
-						</div>
+					<div class="code-demo-pair">
+						<pre><code>&lt;label for="paste-check"&gt;Paste check&lt;/label&gt;
+&lt;textarea id="paste-check" maxlength="40"
+  aria-describedby="paste-help"&gt;&lt;/textarea&gt;
+&lt;small id="paste-help"&gt;Up to 40 characters.&lt;/small&gt;
+&lt;form-maxlength-progress
+  for="paste-check" overrun="true"
+&gt;&lt;/form-maxlength-progress&gt;
 
-						<form autocomplete="on">
+&lt;form action="./index.html" method="get" autocomplete="on"&gt;
+  &lt;label for="address-check"&gt;Street address&lt;/label&gt;
+  &lt;input id="address-check" name="street-address"
+    autocomplete="street-address" maxlength="40"
+    aria-describedby="address-help" /&gt;
+  &lt;small id="address-help"&gt;Up to 40 characters.&lt;/small&gt;
+  &lt;form-maxlength-progress for="address-check"&gt;
+  &lt;/form-maxlength-progress&gt;
+  &lt;button type="submit"&gt;Submit address&lt;/button&gt;
+&lt;/form&gt;</code></pre>
+						<div class="demo">
 							<div class="maxlength-field">
-								<label for="address-check"
-									>Street address autofill check</label
+								<label for="paste-check">Paste check</label>
+								<code class="sample-text"
+									>This sample jumps beyond the forty
+									character limit.</code
 								>
-								<input
-									id="address-check"
-									name="street-address"
-									autocomplete="street-address"
+								<textarea
+									id="paste-check"
 									maxlength="40"
-								/>
+									rows="3"
+									aria-describedby="paste-help"
+								></textarea>
+								<small id="paste-help"
+									>Up to 40 characters. With enhancement,
+									extra text is allowed and marked
+									invalid.</small
+								>
 								<form-maxlength-progress
-									for="address-check"
+									for="paste-check"
+									overrun="true"
 								></form-maxlength-progress>
 							</div>
-						</form>
+
+							<form
+								action="./index.html"
+								method="get"
+								autocomplete="on"
+							>
+								<div class="maxlength-field">
+									<label for="address-check"
+										>Street address autofill check</label
+									>
+									<input
+										id="address-check"
+										name="street-address"
+										autocomplete="street-address"
+										maxlength="40"
+										aria-describedby="address-help"
+									/>
+									<small id="address-help"
+										>Up to 40 characters.</small
+									>
+									<form-maxlength-progress
+										for="address-check"
+									></form-maxlength-progress>
+								</div>
+								<button type="submit">Submit address</button>
+							</form>
+						</div>
 					</div>
 				</div>
 			</section>
@@ -200,7 +167,11 @@
 						<code>counter</code> and <code>progress</code>.
 					</p>
 					<div class="code-demo-pair">
-						<pre><code>&lt;form-maxlength-progress
+						<pre><code>&lt;label for="summary"&gt;Summary&lt;/label&gt;
+&lt;input id="summary" maxlength="80"
+  aria-describedby="summary-help" /&gt;
+&lt;small id="summary-help"&gt;Up to 80 characters.&lt;/small&gt;
+&lt;form-maxlength-progress class="custom-progress"
   for="summary"
   counter="summary-count"
   progress="summary-meter"
@@ -211,7 +182,15 @@
 &lt;/form-maxlength-progress&gt;</code></pre>
 						<div class="demo">
 							<label for="summary">Summary</label>
-							<input id="summary" maxlength="80" />
+							<input
+								id="summary"
+								maxlength="80"
+								aria-describedby="summary-help"
+							/>
+							<small id="summary-help"
+								>Up to 80 characters. The native progress bar
+								supplements the remaining count.</small
+							>
 							<form-maxlength-progress
 								class="custom-progress"
 								for="summary"
@@ -239,12 +218,16 @@
 						overrun labels, and reached/exceeded alerts together.
 						Overrun removes native enforcement and sets
 						<code>aria-invalid="true"</code> until the value returns
-						within the limit.
+						within the limit. This warm theme pairs its reading,
+						field, boundary, and focus colors. Forced colors restore
+						the system pairs.
 					</p>
 					<div class="code-demo-pair">
-						<pre><code>&lt;div lang="fr"&gt;
+						<pre><code>&lt;div class="custom-theme" lang="fr"&gt;
   &lt;label for="short-note"&gt;Note courte&lt;/label&gt;
-  &lt;textarea id="short-note" maxlength="40"&gt;&lt;/textarea&gt;
+  &lt;textarea id="short-note" maxlength="40"
+    aria-describedby="short-note-help"&gt;&lt;/textarea&gt;
+  &lt;small id="short-note-help"&gt;40 caractères maximum.&lt;/small&gt;
   &lt;form-maxlength-progress
     for="short-note"
     overrun="true"
@@ -257,14 +240,20 @@
     limit-exceeded-label="Limite de caractères dépassée"
   &gt;&lt;/form-maxlength-progress&gt;
 &lt;/div&gt;</code></pre>
-						<div class="demo" lang="fr">
+						<div class="demo custom-theme" lang="fr">
 							<div class="maxlength-field">
 								<label for="short-note">Note courte</label>
 								<textarea
 									id="short-note"
 									maxlength="40"
 									rows="4"
+									aria-describedby="short-note-help"
 								></textarea>
+								<small id="short-note-help"
+									>40 caractères maximum. Après activation, le
+									dépassement est signalé, mais reste
+									possible.</small
+								>
 								<form-maxlength-progress
 									for="short-note"
 									overrun="true"
@@ -294,7 +283,15 @@
 						associated field.
 					</p>
 					<div class="code-demo-pair">
-						<pre><code>document
+						<pre><code>&lt;label for="event-message"&gt;Notification event&lt;/label&gt;
+&lt;textarea id="event-message" maxlength="20"
+  aria-describedby="event-help"&gt;&lt;/textarea&gt;
+&lt;small id="event-help"&gt;Up to 20 characters.&lt;/small&gt;
+&lt;form-maxlength-progress id="event-progress"
+  for="event-message" overrun="true"&gt;
+&lt;/form-maxlength-progress&gt;
+
+document
   .querySelector('#event-progress')
   .addEventListener(
     'form-maxlength-progress:notification',
@@ -311,17 +308,21 @@
 									id="event-message"
 									maxlength="20"
 									rows="3"
+									aria-describedby="event-help"
 								></textarea>
+								<small id="event-help"
+									>Up to 20 characters. With enhancement,
+									extra text is allowed and marked
+									invalid.</small
+								>
 								<form-maxlength-progress
 									id="event-progress"
 									for="event-message"
 									overrun="true"
 								></form-maxlength-progress>
 							</div>
-							<pre
-								id="event-output"
-								class="event-output"
-							>Waiting for a notification milestone…</pre>
+							<pre id="event-output" class="event-output">
+Waiting for a notification milestone…</pre>
 						</div>
 					</div>
 				</div>

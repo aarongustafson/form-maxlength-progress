@@ -5,54 +5,68 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<title>form-maxlength-progress via unpkg</title>
 		<link rel="stylesheet" href="./styles.css" />
-		<style>
-			form-maxlength-progress:not(:defined) {
-				display: none;
-			}
-
-			[data-form-maxlength-progress-generated-counter] {
-				font-variant-numeric: tabular-nums;
-			}
-
-			form-maxlength-progress[proximity='overrun'],
-			textarea[aria-invalid='true'] {
-				color: crimson;
-			}
-
-			.maxlength-field {
-				display: inline-grid;
-				max-inline-size: 100%;
-			}
-
-			.maxlength-field textarea {
-				box-sizing: border-box;
-				inline-size: 30rem;
-				max-inline-size: 100%;
-			}
-
-			.maxlength-field form-maxlength-progress {
-				display: block;
-				text-align: end;
-			}
-		</style>
 	</head>
 	<body>
-		<h1>unpkg CDN sanity check</h1>
-		<p>
-			This page loads the guarded definition helper from
-			<code>unpkg</code>. The field allows overrun and receives
-			<code>aria-invalid="true"</code> above its limit.
-		</p>
+		<header>
+			<h1>&lt;form-maxlength-progress&gt; via unpkg</h1>
+			<p>
+				<a
+					href="https://github.com/aarongustafson/form-maxlength-progress#readme"
+					>README and API documentation</a
+				>
+			</p>
+		</header>
+		<main>
+			<section class="demo-section">
+				<h2>Guarded definition helper and overrun</h2>
+				<p>
+					This page loads the guarded definition helper from
+					<code>unpkg</code>. The field allows overrun and receives
+					<code>aria-invalid="true"</code> above its limit. Remaining
+					and over-limit text, bold type, and a double field boundary
+					supplement native semantics. Without JavaScript or if the
+					CDN fails, the labeled field, visible limit, and native
+					maxlength enforcement remain.
+				</p>
 
-		<div class="maxlength-field">
-			<label for="unpkg-message">Message</label>
-			<textarea id="unpkg-message" maxlength="30"></textarea>
-			<form-maxlength-progress
-				for="unpkg-message"
-				overrun="true"
-			></form-maxlength-progress>
-		</div>
+				<div class="code-demo-pair">
+					<pre><code>&lt;label for="unpkg-message"&gt;Message&lt;/label&gt;
+&lt;textarea id="unpkg-message" maxlength="30"
+  aria-describedby="unpkg-help"&gt;&lt;/textarea&gt;
+&lt;small id="unpkg-help"&gt;Up to 30 characters.&lt;/small&gt;
+&lt;form-maxlength-progress for="unpkg-message" overrun="true"&gt;
+&lt;/form-maxlength-progress&gt;
 
+import { defineFormMaxlengthProgress } from
+  'https://unpkg.com/@aarongustafson/form-maxlength-progress@latest/define.js?module';
+defineFormMaxlengthProgress();</code></pre>
+					<div class="demo">
+						<div class="maxlength-field">
+							<label for="unpkg-message">Message</label>
+							<textarea
+								id="unpkg-message"
+								maxlength="30"
+								aria-describedby="unpkg-help"
+							></textarea>
+							<small id="unpkg-help"
+								>Up to 30 characters. With enhancement, extra
+								text is allowed and marked invalid.</small
+							>
+							<form-maxlength-progress
+								for="unpkg-message"
+								overrun="true"
+							></form-maxlength-progress>
+						</div>
+					</div>
+				</div>
+			</section>
+		</main>
+		<footer>
+			<p>
+				Made with ❤️ by
+				<a href="https://github.com/aarongustafson">Aaron Gustafson</a>.
+			</p>
+		</footer>
 		<script type="module">
 			import { defineFormMaxlengthProgress } from 'https://unpkg.com/@aarongustafson/form-maxlength-progress@latest/define.js?module';
 
