@@ -14,10 +14,15 @@ const types = {
 const port = Number(process.env.PORT || 4188);
 
 createServer(async (request, response) => {
-	const path = resolve(
-		root,
-		`.${new URL(request.url, 'http://localhost').pathname}`,
-	);
+	let pathname;
+	try {
+		pathname = new URL(request.url, 'http://localhost').pathname;
+	} catch (error) {
+		if (error.code !== 'ERR_INVALID_URL') throw error;
+		response.writeHead(400).end();
+		return;
+	}
+	const path = resolve(root, `.${pathname}`);
 	if (
 		!path.startsWith(`${resolve(root)}${sep}`) ||
 		path.includes(`${sep}.`)

@@ -452,6 +452,9 @@ and 320px reflow with enlarged text. CDN tests substitute local source; they
 don’t prove CDN availability. A narrowly scoped expected failure tracks
 Ubuntu WebKit’s dark `ButtonText`/`ButtonFace` contrast.
 
+The local server rejects malformed request URLs with HTTP 400. A regression
+checks that it continues serving valid requests afterward.
+
 Palette substitution and browser emulation don’t prove Windows high-contrast
 repainting or assistive-technology behavior. Real OS themes, screen readers,
 browser zoom, saved-address autofill, and clipboard/IME checks still need human
