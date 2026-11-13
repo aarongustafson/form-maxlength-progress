@@ -6,29 +6,35 @@
    ========================================================================== */
 
 :root {
-  color-scheme: light dark;
+	color-scheme: light dark;
+}
+
+* {
+	box-sizing: border-box;
 }
 
 body {
-	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
-		Oxygen, Ubuntu, Cantarell, sans-serif;
+	font-family:
+		-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu,
+		Cantarell, sans-serif;
 	line-height: 1.6;
 	color: CanvasText;
 	background: Canvas;
 	max-width: 1400px;
 	margin: 0 auto;
 	padding: 1rem;
+	overflow-wrap: anywhere;
 }
 
 .visibly-hidden {
-  border: 0;
-  clip: rect(0 0 0 0);
-  height: 1px;
-  margin: -1px;
-  overflow: hidden;
-  padding: 0;
-  position: absolute;
-  width: 1px;
+	border: 0;
+	clip: rect(0 0 0 0);
+	height: 1px;
+	margin: -1px;
+	overflow: hidden;
+	padding: 0;
+	position: absolute;
+	width: 1px;
 }
 
 /* Typography
@@ -56,7 +62,8 @@ p {
 }
 
 code {
-	background-color: ButtonFace;
+	background-color: Canvas;
+	background-image: linear-gradient(ButtonFace, ButtonFace);
 	color: ButtonText;
 	padding: 0.125rem 0.25rem;
 	border-radius: 3px;
@@ -67,17 +74,14 @@ code {
 /* Links
    ========================================================================== */
 
-a {
+a,
+a:active {
 	color: LinkText;
 	text-decoration-skip-ink: auto;
 }
 
 a:visited {
 	color: VisitedText;
-}
-
-a:active {
-	color: ActiveText;
 }
 
 a:hover {
@@ -98,8 +102,10 @@ header p {
 footer {
 	margin-block-start: 3rem;
 	padding-block-start: 2rem;
-	border-top: 2px solid ButtonBorder;
-	color: GrayText;
+	border-top: 1px solid CanvasText;
+	background: Canvas;
+	color: CanvasText;
+	color: color-mix(in srgb, CanvasText 80%, Canvas);
 	font-size: 0.9rem;
 }
 
@@ -109,7 +115,8 @@ footer {
 .demo-section {
 	margin-block: 2rem;
 	padding: 1.5rem;
-	background: ButtonFace;
+	background: Canvas;
+	color: CanvasText;
 	border-radius: 8px;
 	border: 1px solid ButtonBorder;
 }
@@ -123,25 +130,19 @@ footer {
    ========================================================================== */
 
 .code-demo-pair {
-	display: flex;
-	flex-direction: column;
+	display: grid;
+	grid-template-columns: minmax(0, 1fr);
 	gap: 1rem;
 	margin-block: 1rem;
 }
 
+.code-demo-pair > * {
+	min-inline-size: 0;
+}
+
 @media (min-width: 768px) {
 	.code-demo-pair {
-		flex-direction: row;
-		align-items: flex-start;
-	}
-
-	.code-demo-pair > pre {
-		flex: 1;
-		margin: 0;
-	}
-
-	.code-demo-pair > .demo {
-		flex: 1;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
 	}
 }
 
@@ -149,7 +150,8 @@ footer {
    ========================================================================== */
 
 pre {
-	background: Field;
+	background-color: Canvas;
+	background-image: linear-gradient(Field, Field);
 	color: FieldText;
 	padding: 1rem;
 	border-radius: 6px;
@@ -179,9 +181,10 @@ pre code mark {
 
 .demo {
 	background: Canvas;
+	color: CanvasText;
 	padding: 1rem;
 	border-radius: 6px;
-	border: 1px solid ButtonBorder;
+	border: 1px solid CanvasText;
 }
 
 /* Form Elements
@@ -222,27 +225,28 @@ select,
 textarea {
 	display: block;
 	padding: 0.25rem 0.5rem;
-	border: 1px solid ButtonBorder;
+	border: 1px solid FieldText;
 	border-radius: 4px;
 	font-size: 1rem;
 	font-family: inherit;
 	width: 100%;
 	max-width: 400px;
-	background: Field;
+	background-color: Canvas;
+	background-image: linear-gradient(Field, Field);
 	color: FieldText;
 }
 
 :focus-visible {
-	outline: 2px solid AccentColor;
-	outline-offset: 2px;
-	border-color: AccentColor;
+	outline: 2px solid CanvasText;
+	outline-offset: 3px;
 }
 
 button[type='submit'],
 button[type='reset'] {
-	background: ButtonFace;
+	background-color: Canvas;
+	background-image: linear-gradient(ButtonFace, ButtonFace);
 	color: ButtonText;
-	border: 1px solid ButtonBorder;
+	border: 1px solid currentColor;
 	padding: 0.75rem 1.5rem;
 	border-radius: 4px;
 	font-size: 1rem;
@@ -254,7 +258,11 @@ button[type='reset'] {
 
 button[type='submit']:hover,
 button[type='reset']:hover {
-	opacity: 0.8;
+	background-image: linear-gradient(
+		color-mix(in srgb, ButtonFace 95%, ButtonText),
+		color-mix(in srgb, ButtonFace 95%, ButtonText)
+	);
+	text-decoration: underline;
 }
 
 small {
@@ -262,7 +270,7 @@ small {
 	font-style: italic;
 	font-weight: normal;
 	margin-block: 0.5rem 1rem;
-	color: GrayText;
+	color: inherit;
 }
 
 /* Radio/Checkbox "Other" Pattern
@@ -292,9 +300,9 @@ small {
    ========================================================================== */
 
 .note {
-	background: Mark;
-	color: MarkText;
-	border-left: 4px solid AccentColor;
+	background: Canvas;
+	color: CanvasText;
+	border-left: 4px solid CanvasText;
 	padding: 1rem;
 	margin-block: 1rem;
 	border-radius: 4px;
@@ -314,9 +322,9 @@ small {
    ========================================================================== */
 
 .api-reference {
-	background: SelectedItem;
-	color: SelectedItemText;
-	border-left: 4px solid AccentColor;
+	background: Canvas;
+	color: CanvasText;
+	border-left: 4px solid CanvasText;
 	padding: 1rem;
 	margin-block: 2rem;
 	border-radius: 4px;
@@ -327,14 +335,156 @@ small {
 }
 
 .api-reference a {
-  color: inherit;
+	color: inherit;
+}
+
+form-maxlength-progress:not(:defined) {
+	display: none;
+}
+
+form-maxlength-progress {
+	margin-block-start: 0.5rem;
+}
+
+[data-form-maxlength-progress-generated-counter] {
+	font-variant-numeric: tabular-nums;
+}
+
+form-maxlength-progress:is([proximity='close'], [proximity='warning']) {
+	color: light-dark(#8a4b00, #fbbf24);
+}
+
+form-maxlength-progress:is(
+	[proximity='target'],
+	[proximity='overrun'],
+	[proximity='exceeded']
+) {
+	color: light-dark(#b91c1c, #fda4af);
+	font-weight: bold;
+}
+
+:is(textarea, input)[aria-invalid='true'] {
+	border-width: 3px;
+}
+
+.maxlength-field:has(
+		form-maxlength-progress:is(
+			[proximity='target'],
+			[proximity='overrun'],
+			[proximity='exceeded']
+		)
+	)
+	:is(input, textarea) {
+	border-width: 3px;
+}
+
+.maxlength-field {
+	display: grid;
+	inline-size: 100%;
+	max-inline-size: 30rem;
+}
+
+.maxlength-field :is(input, textarea) {
+	inline-size: 100%;
+	max-inline-size: 100%;
+}
+
+.maxlength-field form-maxlength-progress {
+	display: block;
+	text-align: end;
+}
+
+.custom-progress {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.75rem;
+	max-inline-size: 26rem;
+}
+
+.custom-progress progress {
+	flex: 1 1 8rem;
+	max-inline-size: 100%;
+	/* Keep native rendering; the authored count carries the same information. */
+}
+
+.sample-text {
+	display: block;
+	margin-block: 0.5rem 1rem;
+	user-select: all;
+}
+
+.event-output {
+	background-color: Canvas;
+	background-image: linear-gradient(Field, Field);
+	color: FieldText;
+	border: 1px solid FieldText;
+	margin-block-start: 1rem;
+	min-block-size: 7lh;
+	white-space: pre-wrap;
+}
+
+@media (max-width: 600px) {
+	body,
+	.demo-section,
+	.demo,
+	pre {
+		padding: 0.5rem;
+	}
+}
+
+@media (forced-colors: active), (prefers-contrast: more) {
+	footer {
+		color: CanvasText;
+	}
+
+	button[type='submit']:hover,
+	button[type='reset']:hover {
+		background-image: linear-gradient(ButtonFace, ButtonFace);
+	}
 }
 
 @media (forced-colors: active) {
-	pre code mark,
-	.note,
-	.api-reference {
-		background: Highlight;
-		color: HighlightText;
+	code {
+		background: ButtonFace;
+	}
+
+	pre,
+	.event-output,
+	input:not(
+		[type='checkbox'],
+		[type='radio'],
+		[type='submit'],
+		[type='reset']
+	),
+	select,
+	textarea {
+		background: Field;
+	}
+
+	button[type='submit'],
+	button[type='reset'],
+	button[type='submit']:hover,
+	button[type='reset']:hover {
+		background: ButtonFace;
+	}
+
+	form-maxlength-progress:is(
+		[proximity='close'],
+		[proximity='warning'],
+		[proximity='target'],
+		[proximity='overrun'],
+		[proximity='exceeded']
+	) {
+		color: CanvasText;
+		font-weight: bold;
+	}
+
+	form-maxlength-progress:is(
+		[proximity='target'],
+		[proximity='overrun'],
+		[proximity='exceeded']
+	) {
+		text-decoration: underline;
 	}
 }

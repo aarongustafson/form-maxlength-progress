@@ -4,9 +4,7 @@
  * @element form-maxlength-progress
  */
 export type FormMaxlengthProgressNotificationState =
-	| 'near-limit'
-	| 'limit-reached'
-	| 'limit-exceeded';
+	'near-limit' | 'limit-reached' | 'limit-exceeded';
 
 export type FormMaxlengthProgressNotificationPriority = 'normal' | 'high';
 
