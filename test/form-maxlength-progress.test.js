@@ -85,6 +85,26 @@ describe('FormMaxlengthProgressElement', () => {
 		);
 	});
 
+	it('tracks the actual limit on the generated counter independently of proximity names', async () => {
+		const field = createField();
+		const element = await createElement({
+			for: field.id,
+			overrun: 'true',
+			'proximity-values': 'target 0%, warning 75%, full 100%, beyond',
+		});
+		const counter = element.querySelector(
+			'[data-form-maxlength-progress-generated-counter]',
+		);
+		for (const length of [0, 15, 19, 20, 21, 19, 0]) {
+			field.value = 'x'.repeat(length);
+			field.dispatchEvent(new Event('input'));
+			await settle();
+			expect(
+				counter.hasAttribute('data-form-maxlength-progress-at-limit'),
+			).toBe(length >= 20);
+		}
+	});
+
 	it.each([
 		['input', 'number'],
 		['input', 'checkbox'],

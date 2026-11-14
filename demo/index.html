@@ -140,7 +140,11 @@
 				<div class="demo-section">
 					<p>
 						The host references unique Light DOM descendants using
-						<code>counter</code> and <code>progress</code>.
+						<code>counter</code> and <code>progress</code>. Native
+						progress uses <code>accent-color: currentColor</code>
+						to follow the counter’s safe, warning, and target
+						colors. Forced colors leave the native progress palette
+						to the browser.
 					</p>
 					<div class="code-demo-pair">
 						<pre><code>&lt;label for="summary"&gt;Summary&lt;/label&gt;
@@ -153,7 +157,18 @@
 &gt;</mark>
   &lt;span&gt;&lt;strong id="summary-count"&gt;&lt;/strong&gt; left&lt;/span&gt;
   &lt;progress id="summary-meter"&gt;&lt;/progress&gt;
-<mark>&lt;/form-maxlength-progress&gt;</mark></code></pre>
+<mark>&lt;/form-maxlength-progress&gt;
+
+.custom-progress progress {
+  color: inherit;
+  accent-color: currentColor;
+}
+
+@media (forced-colors: active) {
+  .custom-progress progress {
+    accent-color: auto;
+  }
+}</mark></code></pre>
 						<div class="demo">
 							<label for="summary">Summary</label>
 							<input id="summary" maxlength="80" />
@@ -220,6 +235,157 @@
 									overrun-label-one="{remaining} caractère en trop"
 									limit-reached-label="Limite de caractères atteinte"
 									limit-exceeded-label="Limite de caractères dépassée"
+								></form-maxlength-progress>
+							</div>
+						</div>
+					</div>
+				</div>
+			</section>
+
+			<section>
+				<h2>Arabic translation and right-to-left layout</h2>
+				<div class="demo-section">
+					<p>
+						Set <code>lang="ar"</code> for Arabic plural selection
+						and <code>dir="rtl"</code> for reading direction. Supply
+						all six plural forms through the existing label
+						attributes; numbers count UTF-16 code units, not
+						grapheme clusters.
+					</p>
+					<div class="code-demo-pair">
+						<pre><code>&lt;div lang="ar" dir="rtl"&gt;
+  &lt;label for="arabic-note"&gt;ملاحظة قصيرة&lt;/label&gt;
+  &lt;textarea id="arabic-note" maxlength="40"&gt;&lt;/textarea&gt;
+  <mark>&lt;form-maxlength-progress
+    for="arabic-note" overrun="true"
+    description="اكتب نصًا لا يتجاوز {maxlength} حرفًا"
+    label="{remaining} حرف متبقٍ"
+    label-zero="لا أحرف متبقية"
+    label-one="حرف واحد متبقٍ"
+    label-two="حرفان متبقيان"
+    label-few="{remaining} أحرف متبقية"
+    label-many="{remaining} حرفًا متبقيًا"
+    overrun-label="{remaining} حرف زائد"
+    overrun-label-zero="لا أحرف زائدة"
+    overrun-label-one="حرف واحد زائد"
+    overrun-label-two="حرفان زائدان"
+    overrun-label-few="{remaining} أحرف زائدة"
+    overrun-label-many="{remaining} حرفًا زائدًا"
+    limit-reached-label="تم بلوغ الحد الأقصى للأحرف"
+    limit-exceeded-label="تم تجاوز الحد الأقصى للأحرف"
+  &gt;&lt;/form-maxlength-progress&gt;</mark>
+&lt;/div&gt;</code></pre>
+						<div class="demo" lang="ar" dir="rtl">
+							<div class="maxlength-field">
+								<label for="arabic-note">ملاحظة قصيرة</label>
+								<textarea
+									id="arabic-note"
+									maxlength="40"
+									rows="4"
+								></textarea>
+								<form-maxlength-progress
+									for="arabic-note"
+									overrun="true"
+									description="اكتب نصًا لا يتجاوز {maxlength} حرفًا"
+									label="{remaining} حرف متبقٍ"
+									label-zero="لا أحرف متبقية"
+									label-one="حرف واحد متبقٍ"
+									label-two="حرفان متبقيان"
+									label-few="{remaining} أحرف متبقية"
+									label-many="{remaining} حرفًا متبقيًا"
+									overrun-label="{remaining} حرف زائد"
+									overrun-label-zero="لا أحرف زائدة"
+									overrun-label-one="حرف واحد زائد"
+									overrun-label-two="حرفان زائدان"
+									overrun-label-few="{remaining} أحرف زائدة"
+									overrun-label-many="{remaining} حرفًا زائدًا"
+									limit-reached-label="تم بلوغ الحد الأقصى للأحرف"
+									limit-exceeded-label="تم تجاوز الحد الأقصى للأحرف"
+								></form-maxlength-progress>
+							</div>
+						</div>
+					</div>
+				</div>
+			</section>
+
+			<section>
+				<h2>Custom CSS: a profile introduction</h2>
+				<div class="demo-section">
+					<p>
+						A blue panel, rounded field, and pill-shaped counter
+						change the presentation without replacing the native
+						textarea. The counter keeps its resting description and
+						warning colors. These are demo styles, not new component
+						properties. System colors take over in forced-colors
+						mode.
+					</p>
+					<div class="code-demo-pair">
+						<pre><code>&lt;div class="maxlength-field editorial-field"&gt;
+  &lt;label for="profile-intro"&gt;Profile introduction&lt;/label&gt;
+  &lt;textarea id="profile-intro" maxlength="160"&gt;&lt;/textarea&gt;
+  <mark>&lt;form-maxlength-progress
+    for="profile-intro"
+    description="Introduce yourself in {maxlength} characters"
+  &gt;&lt;/form-maxlength-progress&gt;</mark>
+&lt;/div&gt;
+
+<mark>.editorial-field {
+  padding: 1.5rem;
+  border: 2px solid light-dark(#173f63, #b9d9f5);
+  border-radius: 1.5rem;
+  background: light-dark(#eef4ff, #142838);
+  color: light-dark(#173f63, #e0efff);
+}
+
+.editorial-field label {
+  margin-block-start: 0;
+  font-size: 1.25rem;
+}
+
+.editorial-field textarea {
+  padding: 0.75rem;
+  border-radius: 0.75rem;
+}
+
+.editorial-field textarea:focus-visible {
+  outline: 3px solid light-dark(#173f63, #b9d9f5);
+  outline-offset: 4px;
+}
+
+.editorial-field :where(form-maxlength-progress) {
+  justify-self: end;
+  max-inline-size: 100%;
+  padding: 0.25rem 0.75rem;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  background: Canvas;
+  color: CanvasText;
+}
+
+@media (forced-colors: active) {
+  .editorial-field {
+    background: Canvas;
+    color: CanvasText;
+    border-color: CanvasText;
+  }
+
+  .editorial-field textarea:focus-visible {
+    outline-color: Highlight;
+  }
+}</mark></code></pre>
+						<div class="demo">
+							<div class="maxlength-field editorial-field">
+								<label for="profile-intro"
+									>Profile introduction</label
+								>
+								<textarea
+									id="profile-intro"
+									maxlength="160"
+									rows="4"
+								></textarea>
+								<form-maxlength-progress
+									for="profile-intro"
+									description="Introduce yourself in {maxlength} characters"
 								></form-maxlength-progress>
 							</div>
 						</div>
