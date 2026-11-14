@@ -667,6 +667,10 @@ export class FormMaxlengthProgressElement extends HTMLElement {
 			this._counter.textContent = isGenerated ? label : String(remaining);
 			if (isGenerated) {
 				this._counter.removeAttribute('aria-label');
+				this._counter.toggleAttribute(
+					'data-form-maxlength-progress-at-limit',
+					remaining <= 0,
+				);
 			} else {
 				this._counter.setAttribute('aria-label', label);
 			}
@@ -1167,6 +1171,13 @@ export class FormMaxlengthProgressElement extends HTMLElement {
 
 				:host([hidden]) {
 					display: none;
+				}
+
+				@media (forced-colors: active) {
+					::slotted([data-form-maxlength-progress-generated-counter][data-form-maxlength-progress-at-limit]) {
+						font-weight: bold;
+						text-decoration: underline;
+					}
 				}
 
 				[data-form-maxlength-progress-status],

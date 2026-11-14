@@ -303,6 +303,10 @@ The event’s `detail` is
 
 The component defaults to `display: inline-block`, but you can assign your own
 styles as needed. You can use its `proximity` attribute for state-based styles.
+In forced colors, the default generated counter becomes bold and underlined at
+or above the actual character limit. This does not depend on proximity token
+names and clears when the value returns below the limit. Authored counters keep
+their own styles.
 If you don’t bring your own markup, you can target the counter through its
 `data-*` attribute:
 
@@ -388,8 +392,10 @@ The demos use an offset `CanvasText` focus outline on Canvas surrounds and
 full-strength field boundaries. Near the limit, the count changes color; at or
 above it, the count becomes bold and the field’s solid border thickens. Forced
 colors also make warnings bold and reached/exceeded counts underlined. Counts
-and authored, translatable messages carry the meaning without color. These are
-demo styles, not runtime defaults or new component configuration.
+and authored, translatable messages carry the meaning without color. The color
+changes, warning emphasis, and field borders are demo styles, not runtime
+defaults or new component configuration; the default generated counter also
+supplies its own bold underline at or above the limit in forced colors.
 
 Leave `<progress>` native when possible. The authored progress example keeps
 the browser’s track and fill alongside a readable remaining count; it doesn’t

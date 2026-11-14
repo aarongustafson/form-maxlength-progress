@@ -389,7 +389,7 @@ form-maxlength-progress:is(
 	max-inline-size: 100%;
 }
 
-.maxlength-field form-maxlength-progress {
+.maxlength-field :where(form-maxlength-progress:defined) {
 	display: block;
 	text-align: end;
 }
@@ -405,7 +405,41 @@ form-maxlength-progress:is(
 .custom-progress progress {
 	flex: 1 1 8rem;
 	max-inline-size: 100%;
-	/* Keep native rendering; the authored count carries the same information. */
+	color: inherit;
+	accent-color: currentColor;
+}
+
+.editorial-field {
+	padding: 1.5rem;
+	border: 2px solid light-dark(#173f63, #b9d9f5);
+	border-radius: 1.5rem;
+	background: light-dark(#eef4ff, #142838);
+	color: light-dark(#173f63, #e0efff);
+}
+
+.editorial-field label {
+	margin-block-start: 0;
+	font-size: 1.25rem;
+}
+
+.editorial-field textarea {
+	padding: 0.75rem;
+	border-radius: 0.75rem;
+}
+
+.editorial-field textarea:focus-visible {
+	outline: 3px solid light-dark(#173f63, #b9d9f5);
+	outline-offset: 4px;
+}
+
+.editorial-field :where(form-maxlength-progress) {
+	justify-self: end;
+	max-inline-size: 100%;
+	padding: 0.25rem 0.75rem;
+	border: 1px solid currentColor;
+	border-radius: 999px;
+	background: Canvas;
+	color: CanvasText;
 }
 
 .sample-text {
@@ -445,6 +479,20 @@ form-maxlength-progress:is(
 }
 
 @media (forced-colors: active) {
+	.editorial-field {
+		background: Canvas;
+		color: CanvasText;
+		border-color: CanvasText;
+	}
+
+	.editorial-field textarea:focus-visible {
+		outline-color: Highlight;
+	}
+
+	.custom-progress progress {
+		accent-color: auto;
+	}
+
 	code {
 		background: ButtonFace;
 	}
