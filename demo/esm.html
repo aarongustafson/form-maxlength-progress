@@ -4,19 +4,45 @@
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<title>form-maxlength-progress via esm.sh</title>
+		<link
+			rel="stylesheet"
+			href="https://cdn.jsdelivr.net/npm/microlighter@2.2.0/dist/themes/github.css"
+		/>
 		<link rel="stylesheet" href="./styles.css" />
+		<link rel="stylesheet" href="./demo-shell.css" />
 	</head>
-	<body>
+	<body data-syntax-theme="github">
+		<a class="skip-link" href="#main">Skip to examples</a>
 		<header>
-			<h1>&lt;form-maxlength-progress&gt; via esm.sh</h1>
-			<p>
+			<p class="eyebrow">Web component / esm</p>
+			<h1>&lt;form-maxlength-progress&gt;</h1>
+			<p class="lede">
 				<a
 					href="https://github.com/aarongustafson/form-maxlength-progress#readme"
 					>README and API documentation</a
 				>
 			</p>
+			<nav aria-label="Component resources">
+				<a
+					href="https://github.com/aarongustafson/form-maxlength-progress/blob/main/README.md"
+					>Read the README</a
+				>
+				<a
+					href="https://github.com/aarongustafson/form-maxlength-progress"
+					>View on GitHub</a
+				>
+				<a href="./index.html">All examples</a>
+				<a href="./unpkg.html">unpkg example</a>
+			</nav>
 		</header>
-		<main>
+		<main id="main" tabindex="-1">
+			<p
+				id="microlighter-status"
+				class="enhancement-status"
+				role="status"
+				hidden
+			></p>
+
 			<section class="demo-section">
 				<h2>Class-only import and manual registration</h2>
 				<p>
@@ -26,7 +52,16 @@
 					maxlength still applies.
 				</p>
 				<div class="code-demo-pair">
-					<pre><code>&lt;label for="esm-message"&gt;Message&lt;/label&gt;
+					<micro-lighter
+						class="code-panel"
+						language="html"
+						controls="copy"
+						data-label="HTML"
+					>
+						<pre
+							aria-label="Class-only import and manual registration code 1"
+							tabindex="0"
+						><code>&lt;label for="esm-message"&gt;Message&lt;/label&gt;
 &lt;textarea id="esm-message" maxlength="100"&gt;&lt;/textarea&gt;
 <mark>&lt;form-maxlength-progress for="esm-message"&gt;
 &lt;/form-maxlength-progress&gt;</mark>
@@ -40,6 +75,7 @@ if (!customElements.get('form-maxlength-progress')) {
     FormMaxlengthProgressElement,
   );
 }</mark></code></pre>
+					</micro-lighter>
 					<div class="demo">
 						<div class="maxlength-field">
 							<label for="esm-message">Message</label>
@@ -71,5 +107,6 @@ if (!customElements.get('form-maxlength-progress')) {
 				);
 			}
 		</script>
+		<script type="module" src="./code-examples.js"></script>
 	</body>
 </html>
