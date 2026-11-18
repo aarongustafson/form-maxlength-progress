@@ -228,7 +228,7 @@ test('forced colors use bold warning and bold underlined limit text with solid s
 		probe.remove();
 		return color;
 	});
-	for (const selector of ['#message', 'pre', '.event-output']) {
+	for (const selector of ['#message', 'micro-lighter', '.event-output']) {
 		await expect(page.locator(selector).first()).toHaveCSS(
 			'background-image',
 			'none',
@@ -238,6 +238,10 @@ test('forced colors use bold warning and bold underlined limit text with solid s
 			fieldColor,
 		);
 	}
+	await expect(page.locator('micro-lighter pre').first()).toHaveCSS(
+		'background-color',
+		/^rgba\(\d+,\s*\d+,\s*\d+,\s*0\)$/,
+	);
 });
 
 for (const colorScheme of ['light', 'dark']) {
