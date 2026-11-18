@@ -1,4 +1,11 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from './fixtures.js';
+
+test.beforeEach(async ({ page }) => {
+	await page.route(
+		'https://cdn.jsdelivr.net/npm/microlighter@2.2.0/dist/**',
+		(route) => route.abort(),
+	);
+});
 
 for (const colorScheme of ['light', 'dark']) {
 	test(`${colorScheme}: authored progress follows the counter at each threshold`, async ({
@@ -65,6 +72,10 @@ test('custom CSS preserves field semantics, keyboard focus, and reflow', async (
 	const field = card.getByRole('textbox', { name: 'Profile introduction' });
 	await expect(field).toHaveAttribute('maxlength', '160');
 	await page.locator('#arabic-note').focus();
+	await page.keyboard.press('Tab');
+	await expect(
+		page.locator('.code-demo-pair').filter({ has: card }).locator('pre'),
+	).toBeFocused();
 	await page.keyboard.press('Tab');
 	await expect(field).toBeFocused();
 	await page.keyboard.type('A short introduction.');

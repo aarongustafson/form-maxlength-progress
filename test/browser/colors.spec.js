@@ -1,5 +1,12 @@
 import { readFile } from 'node:fs/promises';
-import { test, expect } from '@playwright/test';
+import { test, expect } from './fixtures.js';
+
+test.beforeEach(async ({ page }) => {
+	await page.route(
+		'https://cdn.jsdelivr.net/npm/microlighter@2.2.0/dist/**',
+		(route) => route.abort(),
+	);
+});
 
 const read = (path) =>
 	readFile(new URL(`../../${path}`, import.meta.url), 'utf8');
@@ -157,9 +164,9 @@ test('all pages use component descriptions without duplicate authored help', asy
 			page.getByRole('button', { name: 'Submit address' }),
 		).toHaveCount(0);
 		for (const section of await page.locator('.demo-section').all()) {
-			await expect(section.locator('.code-demo-pair > pre')).toHaveCount(
-				1,
-			);
+			await expect(
+				section.locator('.code-demo-pair > :is(pre, micro-lighter)'),
+			).toHaveCount(1);
 			await expect(
 				section.locator('.code-demo-pair > .demo'),
 			).toHaveCount(1);
@@ -221,7 +228,7 @@ test('forced colors use bold warning and bold underlined limit text with solid s
 		probe.remove();
 		return color;
 	});
-	for (const selector of ['#message', 'pre', '.event-output']) {
+	for (const selector of ['#message', 'micro-lighter', '.event-output']) {
 		await expect(page.locator(selector).first()).toHaveCSS(
 			'background-image',
 			'none',
@@ -231,6 +238,10 @@ test('forced colors use bold warning and bold underlined limit text with solid s
 			fieldColor,
 		);
 	}
+	await expect(page.locator('micro-lighter pre').first()).toHaveCSS(
+		'background-color',
+		/^rgba\(\d+,\s*\d+,\s*\d+,\s*0\)$/,
+	);
 });
 
 for (const colorScheme of ['light', 'dark']) {
@@ -278,7 +289,9 @@ test('all 19 study palettes retain reading, feedback, boundary, and focus contra
 	page,
 }) => {
 	await demo(page);
-	const css = await read('demo/styles.css');
+	const css = (
+		await Promise.all(['demo/styles.css', 'demo/demo-shell.css'].map(read))
+	).join('\n');
 	const style = await page.addStyleTag({ content: css });
 	await page.locator('#short-note').fill('x'.repeat(41));
 	for (const palette of palettes) {
@@ -347,6 +360,13 @@ test('native keyboard, descriptions, limits, and non-submitting autofill checks 
 	);
 	await expect(field).toHaveCSS('outline-style', 'solid');
 	expect((await measurements(field)).outline).toBeGreaterThanOrEqual(3);
+	await page.keyboard.press('Tab');
+	await expect(
+		page
+			.locator('.code-demo-pair')
+			.filter({ has: page.locator('#paste-check') })
+			.locator('pre'),
+	).toBeFocused();
 	await page.keyboard.press('Tab');
 	await expect(page.locator('#paste-check')).toBeFocused();
 	const initialURL = page.url();
@@ -458,7 +478,7 @@ for (const name of ['index.html', 'esm.html', 'unpkg.html']) {
 	}) => {
 		await demo(page, name);
 		const pair = page.locator('.code-demo-pair').first();
-		const code = pair.locator(':scope > pre');
+		const code = pair.locator(':scope > micro-lighter');
 		const live = pair.locator(':scope > .demo');
 		await page.setViewportSize({ width: 1280, height: 900 });
 		expect((await code.boundingBox()).x).toBeLessThan(

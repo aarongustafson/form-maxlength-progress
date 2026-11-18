@@ -5,11 +5,14 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<title>&lt;form-maxlength-progress&gt; Web Component Demo</title>
 		<link rel="stylesheet" href="./styles.css" />
+		<link rel="stylesheet" href="./demo-shell.css" />
 	</head>
-	<body>
+	<body data-syntax-theme="github">
+		<a class="skip-link" href="#main">Skip to examples</a>
 		<header>
+			<p class="eyebrow">Web component / Examples</p>
 			<h1>&lt;form-maxlength-progress&gt;</h1>
-			<p>
+			<p class="lede">
 				Indicates a user’s progress toward the limit of a field’s
 				<code>maxlength</code> value. See the
 				<a
@@ -18,9 +21,28 @@
 				>
 				for complete API documentation.
 			</p>
+			<nav aria-label="Component resources">
+				<a
+					href="https://github.com/aarongustafson/form-maxlength-progress/blob/main/README.md"
+					>Read the README</a
+				>
+				<a
+					href="https://github.com/aarongustafson/form-maxlength-progress"
+					>View on GitHub</a
+				>
+				<a href="./esm.html">esm.sh example</a>
+				<a href="./unpkg.html">unpkg example</a>
+			</nav>
 		</header>
 
-		<main>
+		<main id="main" tabindex="-1">
+			<p
+				id="microlighter-status"
+				class="enhancement-status"
+				role="status"
+				hidden
+			></p>
+
 			<p class="note">
 				Fields retain native maxlength enforcement without JavaScript or
 				if the module fails to load. After upgrade, the component shows
@@ -48,13 +70,23 @@
 						hook.
 					</p>
 					<div class="code-demo-pair">
-						<pre><code>&lt;label for="message"&gt;Message&lt;/label&gt;
+						<micro-lighter
+							class="code-panel"
+							language="html"
+							controls="copy"
+							data-label="HTML"
+						>
+							<pre
+								aria-label="Example code 1"
+								tabindex="0"
+							><code>&lt;label for="message"&gt;Message&lt;/label&gt;
 &lt;textarea id="message" maxlength="120"&gt;&lt;/textarea&gt;
 <mark>&lt;form-maxlength-progress
   for="message"
   description="Write up to {maxlength} characters"
 &gt;
 &lt;/form-maxlength-progress&gt;</mark></code></pre>
+						</micro-lighter>
 						<div class="demo">
 							<div class="maxlength-field">
 								<label for="message">Message</label>
@@ -83,7 +115,16 @@
 						to check browser autofill.
 					</p>
 					<div class="code-demo-pair">
-						<pre><code>&lt;label for="paste-check"&gt;Paste check&lt;/label&gt;
+						<micro-lighter
+							class="code-panel"
+							language="html"
+							controls="copy"
+							data-label="HTML"
+						>
+							<pre
+								aria-label="Example code 2"
+								tabindex="0"
+							><code>&lt;label for="paste-check"&gt;Paste check&lt;/label&gt;
 &lt;textarea id="paste-check" maxlength="40"&gt;&lt;/textarea&gt;
 <mark>&lt;form-maxlength-progress
   for="paste-check" overrun="true"
@@ -96,6 +137,7 @@
   <mark>&lt;form-maxlength-progress for="address-check"&gt;
   &lt;/form-maxlength-progress&gt;</mark>
 &lt;/form&gt;</code></pre>
+						</micro-lighter>
 						<div class="demo">
 							<div class="maxlength-field">
 								<label for="paste-check">Paste check</label>
@@ -147,7 +189,16 @@
 						to the browser.
 					</p>
 					<div class="code-demo-pair">
-						<pre><code>&lt;label for="summary"&gt;Summary&lt;/label&gt;
+						<micro-lighter
+							class="code-panel"
+							language="html"
+							controls="copy"
+							data-label="HTML"
+						>
+							<pre
+								aria-label="Example code 3"
+								tabindex="0"
+							><code>&lt;label for="summary"&gt;Summary&lt;/label&gt;
 &lt;input id="summary" maxlength="80" /&gt;
 <mark>&lt;form-maxlength-progress class="custom-progress"
   for="summary"
@@ -169,6 +220,7 @@
     accent-color: auto;
   }
 }</mark></code></pre>
+						</micro-lighter>
 						<div class="demo">
 							<label for="summary">Summary</label>
 							<input id="summary" maxlength="80" />
@@ -202,7 +254,16 @@
 						within the limit.
 					</p>
 					<div class="code-demo-pair">
-						<pre><code>&lt;div lang="fr"&gt;
+						<micro-lighter
+							class="code-panel"
+							language="html"
+							controls="copy"
+							data-label="HTML"
+						>
+							<pre
+								aria-label="Example code 4"
+								tabindex="0"
+							><code>&lt;div lang="fr"&gt;
   &lt;label for="short-note"&gt;Note courte&lt;/label&gt;
   &lt;textarea id="short-note" maxlength="40"&gt;&lt;/textarea&gt;
   <mark>&lt;form-maxlength-progress
@@ -217,6 +278,7 @@
     limit-exceeded-label="Limite de caractères dépassée"
   &gt;&lt;/form-maxlength-progress&gt;</mark>
 &lt;/div&gt;</code></pre>
+						</micro-lighter>
 						<div class="demo" lang="fr">
 							<div class="maxlength-field">
 								<label for="short-note">Note courte</label>
@@ -253,7 +315,16 @@
 						grapheme clusters.
 					</p>
 					<div class="code-demo-pair">
-						<pre><code>&lt;div lang="ar" dir="rtl"&gt;
+						<micro-lighter
+							class="code-panel"
+							language="html"
+							controls="copy"
+							data-label="HTML"
+						>
+							<pre
+								aria-label="Example code 5"
+								tabindex="0"
+							><code>&lt;div lang="ar" dir="rtl"&gt;
   &lt;label for="arabic-note"&gt;ملاحظة قصيرة&lt;/label&gt;
   &lt;textarea id="arabic-note" maxlength="40"&gt;&lt;/textarea&gt;
   <mark>&lt;form-maxlength-progress
@@ -275,6 +346,7 @@
     limit-exceeded-label="تم تجاوز الحد الأقصى للأحرف"
   &gt;&lt;/form-maxlength-progress&gt;</mark>
 &lt;/div&gt;</code></pre>
+						</micro-lighter>
 						<div class="demo" lang="ar" dir="rtl">
 							<div class="maxlength-field">
 								<label for="arabic-note">ملاحظة قصيرة</label>
@@ -320,7 +392,16 @@
 						mode.
 					</p>
 					<div class="code-demo-pair">
-						<pre><code>&lt;div class="maxlength-field editorial-field"&gt;
+						<micro-lighter
+							class="code-panel"
+							language="html"
+							controls="copy"
+							data-label="HTML"
+						>
+							<pre
+								aria-label="Example code 6"
+								tabindex="0"
+							><code>&lt;div class="maxlength-field editorial-field"&gt;
   &lt;label for="profile-intro"&gt;Profile introduction&lt;/label&gt;
   &lt;textarea id="profile-intro" maxlength="160"&gt;&lt;/textarea&gt;
   <mark>&lt;form-maxlength-progress
@@ -373,6 +454,7 @@
     outline-color: Highlight;
   }
 }</mark></code></pre>
+						</micro-lighter>
 						<div class="demo">
 							<div class="maxlength-field editorial-field">
 								<label for="profile-intro"
@@ -405,7 +487,16 @@
 						associated field.
 					</p>
 					<div class="code-demo-pair">
-						<pre><code>&lt;label for="event-message"&gt;Notification event&lt;/label&gt;
+						<micro-lighter
+							class="code-panel"
+							language="html"
+							controls="copy"
+							data-label="HTML"
+						>
+							<pre
+								aria-label="Example code 7"
+								tabindex="0"
+							><code>&lt;label for="event-message"&gt;Notification event&lt;/label&gt;
 &lt;textarea id="event-message" maxlength="20"&gt;&lt;/textarea&gt;
 <mark>&lt;form-maxlength-progress id="event-progress"
   for="event-message" overrun="true"&gt;
@@ -419,6 +510,7 @@
       console.log(event.detail);
     }
   );</mark></code></pre>
+						</micro-lighter>
 						<div class="demo">
 							<div class="maxlength-field">
 								<label for="event-message"
@@ -475,5 +567,6 @@ Waiting for a notification milestone…</pre>
 					},
 				);
 		</script>
+		<script type="module" src="./code-examples.js"></script>
 	</body>
 </html>
