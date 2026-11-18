@@ -285,7 +285,9 @@ test('all 19 study palettes retain reading, feedback, boundary, and focus contra
 	page,
 }) => {
 	await demo(page);
-	const css = await read('demo/styles.css');
+	const css = (
+		await Promise.all(['demo/styles.css', 'demo/demo-shell.css'].map(read))
+	).join('\n');
 	const style = await page.addStyleTag({ content: css });
 	await page.locator('#short-note').fill('x'.repeat(41));
 	for (const palette of palettes) {
