@@ -1,5 +1,6 @@
 import { readFile } from 'node:fs/promises';
 import { test, expect } from './fixtures.js';
+import { expectNativeFocus, readDemoStyles } from './demo-fixture.js';
 
 test.beforeEach(async ({ page }) => {
 	await page.route(
@@ -108,11 +109,7 @@ async function measurements(locator) {
 		const text = ratio(paint(style.color), fill);
 		background(element);
 		const boundary = ratio(paint(style.borderTopColor), fill);
-		const surround = background(
-			element === document.body ? element : element.parentElement,
-		);
-		const outline = ratio(paint(style.outlineColor), surround);
-		return { text, boundary, outline };
+		return { text, boundary };
 	});
 }
 
@@ -285,13 +282,11 @@ for (const colorScheme of ['light', 'dark']) {
 	});
 }
 
-test('all 19 study palettes retain reading, feedback, boundary, and focus contrast', async ({
+test('all 19 study palettes retain reading, feedback, boundary contrast, and native focus', async ({
 	page,
 }) => {
 	await demo(page);
-	const css = (
-		await Promise.all(['demo/styles.css', 'demo/demo-shell.css'].map(read))
-	).join('\n');
+	const css = await readDemoStyles();
 	const style = await page.addStyleTag({ content: css });
 	await page.locator('#short-note').fill('x'.repeat(41));
 	for (const palette of palettes) {
@@ -332,7 +327,7 @@ test('all 19 study palettes retain reading, feedback, boundary, and focus contra
 			await field.focus();
 			const result = await measurements(field);
 			expect(result.boundary).toBeGreaterThanOrEqual(3);
-			expect(result.outline).toBeGreaterThanOrEqual(3);
+			await expectNativeFocus(field);
 		}
 	}
 });
@@ -358,8 +353,7 @@ test('native keyboard, descriptions, limits, and non-submitting autofill checks 
 	await expect(field).toHaveAccessibleDescription(
 		'Write up to 120 characters',
 	);
-	await expect(field).toHaveCSS('outline-style', 'solid');
-	expect((await measurements(field)).outline).toBeGreaterThanOrEqual(3);
+	await expectNativeFocus(field);
 	await page.keyboard.press('Tab');
 	await expect(
 		page
@@ -538,8 +532,6 @@ for (const contrast of ['more', 'forced']) {
 				(await measurements(page.locator(selector))).text,
 			).toBeGreaterThanOrEqual(4.5);
 		}
-		expect(
-			(await measurements(page.locator('#short-note'))).outline,
-		).toBeGreaterThanOrEqual(3);
+		await expectNativeFocus(page.locator('#short-note'));
 	});
 }
