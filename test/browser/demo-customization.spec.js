@@ -1,4 +1,5 @@
 import { test, expect } from './fixtures.js';
+import { expectNativeFocus } from './demo-fixture.js';
 
 test.beforeEach(async ({ page }) => {
 	await page.route(
@@ -83,7 +84,7 @@ test('custom CSS preserves field semantics, keyboard focus, and reflow', async (
 	await expect(card.locator('form-maxlength-progress')).toContainText(
 		'139 characters remaining',
 	);
-	await expect(field).toHaveCSS('outline-style', 'solid');
+	await expectNativeFocus(field);
 	const ids = (await field.getAttribute('aria-describedby')).split(/\s+/);
 	expect(ids).toHaveLength(1);
 	await page.setViewportSize({ width: 320, height: 800 });
