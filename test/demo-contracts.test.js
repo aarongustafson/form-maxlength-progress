@@ -5,6 +5,12 @@ import { describe, expect, it } from 'vitest';
 
 const read = (file) => readFile(resolve(process.cwd(), file), 'utf8');
 
+it('trims block-edge margins inside demo sections', async () => {
+	expect(await read('demo/demo-shell.css')).toMatch(
+		/\.demo-section(?:,\s*\.api-reference)?\s*\{[^}]*\bmargin-trim:\s*block;/,
+	);
+});
+
 describe('demo and publishing contracts', () => {
 	it('leaves descriptions to the component and omits added submission and theme UI', async () => {
 		for (const name of ['index.html', 'esm.html', 'unpkg.html']) {
