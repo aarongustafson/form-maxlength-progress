@@ -264,18 +264,11 @@ for (const colorScheme of ['light', 'dark']) {
 			).toBeGreaterThanOrEqual(4.5);
 		}
 	});
-	test(`${colorScheme}: native inline-code pair is tested separately`, async ({
+	test(`${colorScheme}: prose inline code meets text contrast`, async ({
 		page,
-		browserName,
 	}) => {
-		test.fail(
-			process.platform === 'linux' &&
-				browserName === 'webkit' &&
-				colorScheme === 'dark',
-			'Known Ubuntu WebKit ButtonText/ButtonFace native-pair limitation.',
-		);
-		await demo(page);
 		await page.emulateMedia({ colorScheme });
+		await demo(page);
 		expect(
 			(await measurements(page.locator('header code'))).text,
 		).toBeGreaterThanOrEqual(4.5);
