@@ -156,6 +156,10 @@ test('milestones show event details, preserve focus, and do not block form valid
 	await page.goto('/demo/index.html');
 	const field = page.locator('#event-message');
 	const output = page.locator('#event-output');
+	await expect(page.locator('#event-progress')).toHaveAttribute(
+		'data-ready',
+		'',
+	);
 	await field.focus();
 	for (const [length, state, priority] of [
 		[10, 'near-limit', 'normal'],
@@ -164,15 +168,14 @@ test('milestones show event details, preserve focus, and do not block form valid
 	]) {
 		await field.fill('x'.repeat(length));
 		await expect(field).toBeFocused();
-		await expect
-			.poll(async () => JSON.parse(await output.textContent()))
-			.toMatchObject({
-				state,
-				priority,
-				remaining: 20 - length,
-				maximum: 20,
-				field: '#event-message',
-			});
+		await expect(output).toContainText(`"state": "${state}"`);
+		expect(JSON.parse(await output.textContent())).toMatchObject({
+			state,
+			priority,
+			remaining: 20 - length,
+			maximum: 20,
+			field: '#event-message',
+		});
 	}
 	await expect(field).toHaveAttribute('aria-invalid', 'true');
 	await expect(field).not.toHaveAttribute('maxlength');
