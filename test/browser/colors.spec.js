@@ -332,7 +332,7 @@ test('native keyboard, descriptions, limits, and non-submitting autofill checks 
 	const field = page.getByRole('textbox', { name: 'Message', exact: true });
 	await expect(
 		page.locator('form-maxlength-progress[for="message"]'),
-	).toContainText('Write up to 120 characters');
+	).toContainText('120 characters allowed');
 	await field.focus();
 	await page.keyboard.type('x'.repeat(125));
 	await expect(field).toHaveValue('x'.repeat(120));
@@ -343,9 +343,7 @@ test('native keyboard, descriptions, limits, and non-submitting autofill checks 
 	await expect(
 		page.locator('form-maxlength-progress[for="message"]'),
 	).toContainText('0 characters remaining');
-	await expect(field).toHaveAccessibleDescription(
-		'Write up to 120 characters',
-	);
+	await expect(field).toHaveAccessibleDescription('120 characters allowed');
 	await expectNativeFocus(field);
 	await page.keyboard.press('Tab');
 	await expect(
