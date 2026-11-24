@@ -47,30 +47,23 @@
 			></p>
 
 			<p class="note">
-				Fields retain native maxlength enforcement without JavaScript or
-				if the module fails to load. After upgrade, the component shows
-				its resting description, then remaining or over-limit text as
-				you type. Amber marks approaching limits; red marks reached or
-				exceeded limits, with contrasting light and dark variants.
-				Forced colors use bold warning text and bold, underlined reached
-				or exceeded text instead. Only the overrun examples relax native
+				Without JavaScript, or if the component fails to load, these
+				labeled fields keep native <code>maxlength</code> enforcement.
+				After upgrade, the component adds a visible count, a static
+				maximum description for the field, and milestone notifications.
+				Only examples with <code>overrun="true"</code> relax
 				enforcement.
 			</p>
-			<section>
+			<section id="default-counter">
 				<h2>Default counter</h2>
 				<div class="demo-section">
 					<p>
-						The <code>description</code> template supplies both the
-						empty-field text and a native-hidden static description
-						associated through <code>aria-describedby</code>. The
-						changing generated counter is hidden from assistive
-						technology to avoid duplicate and per-keystroke
-						description announcements. The generated
-						<code
-							>[data-form-maxlength-progress-generated-counter]</code
-						>
-						element remains in Light DOM as a supported styling
-						hook.
+						Associate the component with the field’s ID using
+						<code>for</code>. An empty field shows “120 characters
+						allowed”; typing changes the visible text to a remaining
+						count. The field’s accessible description still says
+						“120 characters allowed.” Count updates aren’t announced
+						on every keystroke.
 					</p>
 					<div class="code-demo-pair">
 						<micro-lighter
@@ -84,10 +77,7 @@
 								tabindex="0"
 							><code>&lt;label for="message"&gt;Message&lt;/label&gt;
 &lt;textarea id="message" maxlength="120"&gt;&lt;/textarea&gt;
-<mark>&lt;form-maxlength-progress
-  for="message"
-  description="Write up to {maxlength} characters"
-&gt;
+<mark>&lt;form-maxlength-progress for="message"&gt;
 &lt;/form-maxlength-progress&gt;</mark></code></pre>
 						</micro-lighter>
 						<div class="demo" data-demo-label="Live example">
@@ -100,7 +90,6 @@
 								></textarea>
 								<form-maxlength-progress
 									for="message"
-									description="Write up to {maxlength} characters"
 								></form-maxlength-progress>
 							</div>
 						</div>
@@ -108,14 +97,24 @@
 				</div>
 			</section>
 
-			<section>
-				<h2>Paste and autofill checks</h2>
-				<div class="demo-section">
+			<section id="input-beyond-limit">
+				<h2>Allow values beyond the limit</h2>
+				<p>
+					Set exactly <code>overrun="true"</code> to keep accepting
+					text after the maximum. The counter reports a positive
+					over-limit amount, and
+					<code>aria-invalid="true"</code> marks the field until its
+					value returns within the limit. This presentation does
+					<strong>not</strong> block form submission; your application
+					must add blocking validation if it needs it.
+				</p>
+				<div class="demo-section" id="paste-overrun">
+					<h3>Paste a longer message</h3>
 					<p>
-						These fields exercise real browser input paths rather
-						than buttons that imitate them. Copy the sample into the
-						first field. Use saved address data in the second field
-						to check browser autofill.
+						Copy the sample and paste it into the field to jump past
+						the limit in one input. Delete text to bring the count
+						back within the limit. A jump beyond the maximum sends
+						the exceeded notification, not a near-limit warning.
 					</p>
 					<div class="code-demo-pair">
 						<micro-lighter
@@ -128,18 +127,11 @@
 								aria-label="Example code 2"
 								tabindex="0"
 							><code>&lt;label for="paste-check"&gt;Paste check&lt;/label&gt;
+&lt;code class="sample-text"&gt;This sample jumps beyond the forty character limit.&lt;/code&gt;
 &lt;textarea id="paste-check" maxlength="40"&gt;&lt;/textarea&gt;
 <mark>&lt;form-maxlength-progress
   for="paste-check" overrun="true"
-&gt;&lt;/form-maxlength-progress&gt;</mark>
-
-&lt;form method="dialog" autocomplete="on"&gt;
-  &lt;label for="address-check"&gt;Street address&lt;/label&gt;
-  &lt;input id="address-check" name="street-address"
-    autocomplete="street-address" maxlength="40" /&gt;
-  <mark>&lt;form-maxlength-progress for="address-check"&gt;
-  &lt;/form-maxlength-progress&gt;</mark>
-&lt;/form&gt;</code></pre>
+&gt;&lt;/form-maxlength-progress&gt;</mark></code></pre>
 						</micro-lighter>
 						<div class="demo" data-demo-label="Live example">
 							<div class="maxlength-field">
@@ -158,7 +150,36 @@
 									overrun="true"
 								></form-maxlength-progress>
 							</div>
-
+						</div>
+					</div>
+				</div>
+				<div class="demo-section" id="address-autofill">
+					<h3>Keep a native limit for saved addresses</h3>
+					<p>
+						This field keeps native enforcement. If your browser has
+						a saved street address, use its autofill menu to fill
+						the field and check the remaining count. Available
+						autofill controls depend on the browser and saved data.
+					</p>
+					<div class="code-demo-pair">
+						<micro-lighter
+							class="code-panel"
+							language="html"
+							controls="copy"
+							data-label="HTML"
+						>
+							<pre
+								aria-label="Saved address example code"
+								tabindex="0"
+							><code>&lt;form method="dialog" autocomplete="on"&gt;
+  &lt;label for="address-check"&gt;Street address autofill check&lt;/label&gt;
+  &lt;input id="address-check" name="street-address"
+    autocomplete="street-address" maxlength="40" /&gt;
+  <mark>&lt;form-maxlength-progress for="address-check"&gt;
+  &lt;/form-maxlength-progress&gt;</mark>
+&lt;/form&gt;</code></pre>
+						</micro-lighter>
+						<div class="demo" data-demo-label="Live example">
 							<form method="dialog" autocomplete="on">
 								<div class="maxlength-field">
 									<label for="address-check"
@@ -180,16 +201,23 @@
 				</div>
 			</section>
 
-			<section>
+			<section id="authored-counter-progress">
 				<h2>Authored counter and progress</h2>
 				<div class="demo-section">
 					<p>
-						The host references unique Light DOM descendants using
-						<code>counter</code> and <code>progress</code>. Native
-						progress uses <code>accent-color: currentColor</code>
-						to follow the counter’s safe, warning, and target
-						colors. Forced colors leave the native progress palette
-						to the browser.
+						Use <code>counter</code> and <code>progress</code> to
+						reference elements inside the component. The number
+						shows characters remaining; the native progress bar
+						shows how much of the limit you’ve used. Here,
+						<code>proximity-values</code> changes the warning
+						threshold to 60%. The bar uses
+						<code>accent-color: currentColor</code> to follow the
+						counter’s state color, with the browser’s palette in
+						forced colors. See the
+						<a href="../README.md#proximity-states"
+							>proximity reference</a
+						>
+						for stop rules.
 					</p>
 					<div class="code-demo-pair">
 						<micro-lighter
@@ -213,7 +241,18 @@
   &lt;progress id="summary-meter"&gt;&lt;/progress&gt;
 <mark>&lt;/form-maxlength-progress&gt;
 
+&lt;style&gt;
+.custom-progress {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  max-inline-size: 26rem;
+}
+
 .custom-progress progress {
+  flex: 1 1 8rem;
+  max-inline-size: 100%;
   color: inherit;
   accent-color: currentColor;
 }
@@ -222,7 +261,8 @@
   .custom-progress progress {
     accent-color: auto;
   }
-}</mark></code></pre>
+}
+&lt;/style&gt;</mark></code></pre>
 						</micro-lighter>
 						<div class="demo" data-demo-label="Live example">
 							<label for="summary">Summary</label>
@@ -245,16 +285,16 @@
 				</div>
 			</section>
 
-			<section>
+			<section id="french-translation">
 				<h2>French translation and overrun</h2>
 				<div class="demo-section">
 					<p>
-						The component inherits <code>lang</code> for plural
-						selection. Translate the description, remaining and
-						overrun labels, and reached/exceeded alerts together.
-						Overrun removes native enforcement and sets
-						<code>aria-invalid="true"</code> until the value returns
-						within the limit.
+						Use <code>description</code> to rewrite the empty-field
+						text for your application’s vocabulary, and
+						<code>label</code> for the remaining count. For a
+						translation, also supply plural forms, overrun labels,
+						and milestone messages. This example inherits
+						<code>lang="fr"</code> to choose French plural forms.
 					</p>
 					<div class="code-demo-pair">
 						<micro-lighter
@@ -284,7 +324,7 @@
 						</micro-lighter>
 						<div
 							class="demo"
-							data-demo-label="Live example"
+							data-demo-label="Exemple interactif"
 							lang="fr"
 						>
 							<div class="maxlength-field">
@@ -311,15 +351,20 @@
 				</div>
 			</section>
 
-			<section>
+			<section id="arabic-translation">
 				<h2>Arabic translation and right-to-left layout</h2>
 				<div class="demo-section">
 					<p>
 						Set <code>lang="ar"</code> for Arabic plural selection
 						and <code>dir="rtl"</code> for reading direction. Supply
-						all six plural forms through the existing label
-						attributes; numbers count UTF-16 code units, not
-						grapheme clusters.
+						all six plural forms for remaining and overrun counts.
+						Like native <code>maxlength</code>, the component counts
+						UTF-16 code units, not user-perceived characters. See
+						the
+						<a href="../README.md#labels-and-localization"
+							>label reference</a
+						>
+						for templates and fallback rules.
 					</p>
 					<div class="code-demo-pair">
 						<micro-lighter
@@ -356,7 +401,7 @@
 						</micro-lighter>
 						<div
 							class="demo"
-							data-demo-label="Live example"
+							data-demo-label="مثال تفاعلي"
 							lang="ar"
 							dir="rtl"
 						>
@@ -392,7 +437,77 @@
 				</div>
 			</section>
 
-			<section>
+			<section id="notification-events">
+				<h2>Event handling</h2>
+				<div class="demo-section">
+					<p>
+						Listen for
+						<code>form-maxlength-progress:notification</code> to
+						respond to milestone notifications. Type 10 characters
+						to see the near-limit message below, then reach or
+						exceed 20 to see the high-priority messages. The output
+						shows the latest event; it isn’t a second live
+						announcement.
+					</p>
+					<div class="code-demo-pair">
+						<micro-lighter
+							class="code-panel"
+							language="html"
+							controls="copy"
+							data-label="HTML"
+						>
+							<pre
+								aria-label="Notification event example code"
+								tabindex="0"
+							><code>&lt;label for="event-message"&gt;Notification event&lt;/label&gt;
+&lt;textarea id="event-message" maxlength="20"&gt;&lt;/textarea&gt;
+<mark>&lt;form-maxlength-progress id="event-progress"
+  for="event-message" overrun="true"&gt;
+&lt;/form-maxlength-progress&gt;</mark>
+&lt;pre id="event-output" class="event-output"&gt;Waiting for a notification milestone…&lt;/pre&gt;
+
+<mark>&lt;script type="module"&gt;
+document
+  .querySelector('#event-progress')
+  .addEventListener(
+    'form-maxlength-progress:notification',
+    (event) =&gt; {
+      const { state, message, priority, remaining, maximum, field } =
+        event.detail;
+      document.querySelector('#event-output').textContent =
+        JSON.stringify(
+          { state, message, priority, remaining, maximum, field: `#${field.id}` },
+          null,
+          2,
+        );
+    }
+  );
+&lt;/script&gt;</mark></code></pre>
+						</micro-lighter>
+						<div class="demo" data-demo-label="Live example">
+							<div class="maxlength-field">
+								<label for="event-message"
+									>Notification event</label
+								>
+								<textarea
+									id="event-message"
+									maxlength="20"
+									rows="3"
+								></textarea>
+								<form-maxlength-progress
+									id="event-progress"
+									for="event-message"
+									overrun="true"
+								></form-maxlength-progress>
+							</div>
+							<pre id="event-output" class="event-output">
+Waiting for a notification milestone…</pre>
+						</div>
+					</div>
+				</div>
+			</section>
+
+			<section id="profile-styling">
 				<h2>Custom CSS: a profile introduction</h2>
 				<div class="demo-section">
 					<p>
@@ -422,7 +537,8 @@
   &gt;&lt;/form-maxlength-progress&gt;</mark>
 &lt;/div&gt;
 
-<mark>.editorial-field {
+<mark>&lt;style&gt;
+.editorial-field {
   padding: 1.5rem;
   border: 2px solid light-dark(#173f63, #b9d9f5);
   border-radius: 1.5rem;
@@ -457,7 +573,8 @@
     border-color: CanvasText;
   }
 
-  }</mark></code></pre>
+}
+&lt;/style&gt;</mark></code></pre>
 						</micro-lighter>
 						<div class="demo" data-demo-label="Live example">
 							<div class="maxlength-field editorial-field">
@@ -478,65 +595,6 @@
 					</div>
 				</div>
 			</section>
-
-			<section>
-				<h2>Event handling</h2>
-				<div class="demo-section">
-					<p>
-						Listen for
-						<code>form-maxlength-progress:notification</code> to
-						respond when the field nears, reaches, or exceeds its
-						limit. The event’s detail includes its milestone state,
-						message, priority, remaining count, maximum, and
-						associated field.
-					</p>
-					<div class="code-demo-pair">
-						<micro-lighter
-							class="code-panel"
-							language="html"
-							controls="copy"
-							data-label="HTML"
-						>
-							<pre
-								aria-label="Example code 7"
-								tabindex="0"
-							><code>&lt;label for="event-message"&gt;Notification event&lt;/label&gt;
-&lt;textarea id="event-message" maxlength="20"&gt;&lt;/textarea&gt;
-<mark>&lt;form-maxlength-progress id="event-progress"
-  for="event-message" overrun="true"&gt;
-&lt;/form-maxlength-progress&gt;</mark>
-
-<mark>document
-  .querySelector('#event-progress')
-  .addEventListener(
-    'form-maxlength-progress:notification',
-    (event) =&gt; {
-      console.log(event.detail);
-    }
-  );</mark></code></pre>
-						</micro-lighter>
-						<div class="demo" data-demo-label="Live example">
-							<div class="maxlength-field">
-								<label for="event-message"
-									>Notification event</label
-								>
-								<textarea
-									id="event-message"
-									maxlength="20"
-									rows="3"
-								></textarea>
-								<form-maxlength-progress
-									id="event-progress"
-									for="event-message"
-									overrun="true"
-								></form-maxlength-progress>
-							</div>
-							<pre id="event-output" class="event-output">
-Waiting for a notification milestone…</pre>
-						</div>
-					</div>
-				</div>
-			</section>
 		</main>
 
 		<footer>
@@ -553,8 +611,14 @@ Waiting for a notification milestone…</pre>
 				.addEventListener(
 					'form-maxlength-progress:notification',
 					(event) => {
-						const { state, message, priority, remaining, maximum } =
-							event.detail;
+						const {
+							state,
+							message,
+							priority,
+							remaining,
+							maximum,
+							field,
+						} = event.detail;
 						document.querySelector('#event-output').textContent =
 							JSON.stringify(
 								{
@@ -563,7 +627,7 @@ Waiting for a notification milestone…</pre>
 									priority,
 									remaining,
 									maximum,
-									field: `#${event.detail.field.id}`,
+									field: `#${field.id}`,
 								},
 								null,
 								2,

@@ -42,7 +42,7 @@
 				hidden
 			></p>
 
-			<section class="demo-section">
+			<section class="demo-section" id="unpkg-overrun">
 				<h2>Guarded definition helper and overrun</h2>
 				<p>
 					This page loads the guarded definition helper from
@@ -52,6 +52,8 @@
 					field boundary supplement native semantics. Without
 					JavaScript or if the CDN fails, the labeled field and native
 					maxlength enforcement remain.
+					<code>aria-invalid</code> presents the exceeded state but
+					doesn’t block form submission.
 				</p>
 
 				<div class="code-demo-pair">

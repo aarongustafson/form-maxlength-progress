@@ -7,9 +7,20 @@
 [![Type definitions](https://img.shields.io/npm/types/@aarongustafson/form-maxlength-progress)](https://github.com/aarongustafson/form-maxlength-progress/blob/main/form-maxlength-progress.d.ts)
 
 `<form-maxlength-progress>` shows a user’s progress toward a field’s
-`maxlength`. It sits separately from the field, keeps authored UI in light DOM,
-exposes a styleable `proximity` state, and can optionally allow text to overrun
-the defined maximum.
+`maxlength`, with a remaining count and milestone notifications. Without
+JavaScript, the labeled field keeps native `maxlength` enforcement. After
+upgrade, you can optionally allow values beyond that limit.
+
+## Demos
+
+- [Live demo](https://aarongustafson.github.io/form-maxlength-progress/demo/)
+  ([source](./demo/index.html)), including [authored counters](https://aarongustafson.github.io/form-maxlength-progress/demo/#authored-counter-progress),
+  [translations](https://aarongustafson.github.io/form-maxlength-progress/demo/#french-translation),
+  and [styling](https://aarongustafson.github.io/form-maxlength-progress/demo/#profile-styling)
+- [ESM CDN demo](https://aarongustafson.github.io/form-maxlength-progress/demo/esm.html)
+  ([source](./demo/esm.html))
+- [Unpkg CDN demo](https://aarongustafson.github.io/form-maxlength-progress/demo/unpkg.html)
+  ([source](./demo/unpkg.html))
 
 ## Installation
 
@@ -57,49 +68,28 @@ When the field is empty, the component displays its maximum using the
 `{maxlength} characters allowed` template by default. Once the field has
 content, it displays the remaining count.
 
-## Demos
+## Counter and field behavior
 
-- [Live demo](https://aarongustafson.github.io/form-maxlength-progress/demo/)
-  ([source](./demo/index.html))
-- [ESM CDN demo](https://aarongustafson.github.io/form-maxlength-progress/demo/esm.html)
-- [Unpkg CDN demo](https://aarongustafson.github.io/form-maxlength-progress/demo/unpkg.html)
+The browser enforces the field’s native `maxlength` unless you enable overrun.
+Both the browser and component count UTF-16 code units, not user-perceived
+characters: some emoji and combined characters use more than one unit.
 
-## Generated output and behavior
+The component adds a static maximum description to the field’s
+`aria-describedby`, preserving existing references. That description stays
+the same as you type. The visible generated counter is `aria-hidden`, so its
+updates don’t become per-keystroke announcements. Milestone notifications
+communicate approaching, reached, and exceeded limits instead.
 
-The component creates a hidden static description and associates it with the
-field via `aria-describedby`. The changing generated counter is `aria-hidden`
-to avoid announcements on every keystroke.
-
-The simplified, rendered Light DOM looks like this (though generated IDs vary):
-
-```html
-<form-maxlength-progress
-  for="message"
-  id="form-maxlength-progress-1"
-  proximity="far"
->
-  <span data-form-maxlength-progress-generated-counter aria-hidden="true">
-    280 characters allowed
-  </span>
-  <span
-    id="form-maxlength-progress-1-description"
-    data-form-maxlength-progress-description
-    hidden
-  >
-    280 characters allowed
-  </span>
-</form-maxlength-progress>
-```
-
-The visible counter and static description remain in light DOM and use
-consistent `data-*` attributes to make styling easier.
+Typing, paste, and browser input/change events update the count. During
+[IME composition](https://en.wikipedia.org/wiki/Input_method), counts update
+but notifications wait until composition ends. Setting `field.value` alone
+doesn’t fire an input event; dispatch `input` when application code changes it.
 
 ## Authored counters and progress elements
 
-If you want to control the counter markup, that’s an option too. You can use
-`id` references to point the component to your custom counter element, a
-native `<progress>` element, or both. This gives you the flexibility to change
-the elements, add your own style hooks, rearrange the contents, and more.
+Use `counter` and `progress` to reference a counter element, a native
+`<progress>` element, or both. Each reference must identify a unique descendant
+of the component.
 
 ```html
 <label for="summary">Summary</label>
@@ -138,8 +128,9 @@ form-maxlength-progress:not(:defined) {
 
 To customize the text the component shows, use `description` for the
 empty-field state and `label` for the countdown state. `{maxlength}` is
-available in both templates; `{remaining}` is available in count labels. The
-component supports plural-category attributes for count labels (e.g.,
+available in both templates; `{remaining}` supplies the count in labels and
+the maximum in descriptions. The
+component supports plural-category attributes for count labels (for example,
 `label-one`):
 
 ```html
@@ -160,7 +151,9 @@ inherits. The optional category attributes are:
 - `label-few`
 - `label-many`
 
-Missing count categories fall back to `label`. Without a custom `description`,
+Missing count categories fall back to `label`; when that base label is also
+absent, the component uses its English singular/other defaults. The same rule
+applies to `overrun-label`. Without a custom `description`,
 the empty-field default uses “1 character allowed” when `maxlength` is exactly
 1 and “X characters allowed” otherwise. The count defaults are “1 character
 remaining” and “X characters remaining.”
@@ -203,6 +196,7 @@ Custom stops follow these rules:
 
 - The first percentage must be `0%`.
 - Percentages must be strictly ascending and end at `100%`.
+- Tokens must be unique.
 - Tokens must start with an ASCII letter and then contain only letters, numbers,
   `_`, or `-`.
 - One final, optional token without a percentage may represent values above
@@ -214,7 +208,9 @@ Custom stops follow these rules:
 
 ## Allowing values beyond `maxlength`
 
-Set `overrun="true"` to let the field’s value exceed `maxlength`:
+Set exactly `overrun="true"` to let the field’s value exceed `maxlength`.
+A bare `overrun` attribute, `"false"`, or any other value leaves native
+enforcement in place:
 
 ```html
 <textarea id="notes" maxlength="500"></textarea>
@@ -228,8 +224,8 @@ Set `overrun="true"` to let the field’s value exceed `maxlength`:
 
 While overrun is enabled, the component moves the field’s `maxlength` value to
 `data-maxlength`. Authored numeric counters can become negative; the generated
-counter uses the overrun label and a positive amount. A `<progress>` element
-remains capped at 100%.
+counter and accessible overrun labels use a positive amount. The event’s
+`remaining` value stays negative. A `<progress>` element remains capped at 100%.
 
 Overrun supports the same plural categories as `label` through
 `overrun-label-zero`, `overrun-label-one`, `overrun-label-two`,
@@ -249,7 +245,9 @@ textarea[aria-invalid='true'] {
 When the value returns within the limit, the component restores the field’s
 original `aria-invalid` state. It also restores that state when the overrun
 feature is disabled, the component is reassociated, or the component
-disconnects.
+disconnects. Disabling overrun or disconnecting also restores native
+`maxlength` and the original `data-maxlength` attribute; it doesn’t truncate
+the field’s existing value.
 
 `aria-invalid` doesn’t prevent form submission. The component doesn’t call
 `setCustomValidity()`; applications that need blocking validation should manage
@@ -329,94 +327,21 @@ The visible generated counter and static description are in light DOM. These
 | `textarea[aria-invalid='true']`, `input[aria-invalid='true']` | Associated overrun-enabled field while above its maximum                  |
 | `textarea[data-maxlength]`, `input[data-maxlength]`           | Associated field while native `maxlength` is moved aside for overrun      |
 
-For example:
-
-```css
-[data-form-maxlength-progress-generated-counter] {
-  font-variant-numeric: tabular-nums;
-}
-
-form-maxlength-progress[proximity='close'] {
-  text-decoration: underline dotted;
-}
-
-form-maxlength-progress[proximity='target'],
-form-maxlength-progress[proximity='overrun'] {
-  color: light-dark(#b91c1c, #fda4af);
-  font-weight: bold;
-}
-
-@media (forced-colors: active) {
-  form-maxlength-progress:is(
-    [proximity='close'],
-    [proximity='target'],
-    [proximity='overrun']
-  ) {
-    color: CanvasText;
-    font-weight: bold;
-  }
-
-  form-maxlength-progress:is([proximity='target'], [proximity='overrun']) {
-    text-decoration: underline;
-  }
-}
-
-.maxlength-field:has(
-    form-maxlength-progress:is([proximity='target'], [proximity='overrun'])
-  )
-  :is(textarea, input) {
-  border-width: 3px;
-}
-```
-
 The description must remain hidden because it supplies the field’s static
 assistive-technology text.
 
-The demos use contrasting amber and red variants on their light/dark Canvas
-surfaces. Recheck both foreground/background pairs when authoring another theme.
-Forced colors use bold warning text and bold, underlined reached/exceeded text.
-The component supplies its own resting description and changing count; the demos
-do not add a second description beside it. Their code blocks mark the
-component-specific markup and registration code without changing the sample text.
+The component supplies no color palette. The [styling demo](./demo/index.html#profile-styling)
+shows an optional field panel and counter treatment. The demos use amber near
+the limit and red at or above it, with bold text and thicker field boundaries.
+Forced colors add bold warnings and underlined limit states.
 
-### Pair surfaces and keep native progress
+Leave `<progress>` native when possible. The [authored progress demo](./demo/index.html#authored-counter-progress)
+uses `accent-color: currentColor` to match the counter’s state color, and
+`accent-color: auto` in forced colors. The readable remaining count carries
+meaning even when the browser chooses its own fill.
 
-The component supplies no color palette. The [demos](./demo/index.html) pair
-reading surfaces with `CanvasText`/`Canvas`, fields and code blocks with
-`FieldText`/`Field`, and buttons and inline code with
-`ButtonText`/`ButtonFace`. Their Canvas backplates also support translucent
-system colors. The footer uses an 80% foreground mix on Canvas, with
-full-strength text in forced colors and increased contrast.
-
-The demos use an offset `CanvasText` focus outline on Canvas surrounds and
-full-strength field boundaries. Near the limit, the count changes color; at or
-above it, the count becomes bold and the field’s solid border thickens. Forced
-colors also make warnings bold and reached/exceeded counts underlined. Counts
-and authored, translatable messages carry the meaning without color. The color
-changes, warning emphasis, and field borders are demo styles, not runtime
-defaults or new component configuration; the default generated counter also
-supplies its own bold underline at or above the limit in forced colors.
-
-Leave `<progress>` native when possible. The authored progress example keeps
-the browser’s track and fill alongside a readable remaining count; it doesn’t
-depend on an accent fill. When both `counter` and `progress` are supplied, the
-component hides the progress element from assistive technology to avoid
-duplicate information. A progress-only example receives the formatted label.
-
-The French demo uses the same system-color surfaces and light/dark count colors
-as the other examples. If you author a custom theme, test its text, boundary,
-and focus colors together, including hover, limit, overrun, and recovery states.
-System-color names alone don’t guarantee contrast.
-
-Reminder: The component hides authored contents after upgrade until all
-references validate. To prevent those elements from flashing before the custom
-element definition loads, add:
-
-```css
-form-maxlength-progress:not(:defined) {
-  display: none;
-}
-```
+Test text, field boundaries, and focus indicators in light, dark, and forced
+colors when authoring a theme. System-color names alone don’t guarantee contrast.
 
 ## Accessibility details
 
@@ -450,8 +375,8 @@ cue, and preserve the associated field’s focus outline.
 
 If you provide visible limit instructions, keep them outside the component and
 associate them with the field using `aria-describedby`. The component preserves
-those references. The demos rely on the component’s own resting and changing
-descriptions rather than adding separate instructions. If JavaScript is
+those references. The demos rely on the component’s own static description
+and visible count rather than adding separate instructions. If JavaScript is
 unavailable or a module fails, their fields, labels, and native `maxlength`
 remain usable; overrun is only enabled after upgrade.
 
@@ -459,6 +384,15 @@ remain usable; overrun is only enabled after upgrade.
 
 Invalid ID references, duplicate IDs, ineligible fields, invalid `maxlength`
 values, and invalid proximity configuration log warnings to the console.
+Invalid field/counter/progress references or an invalid maximum leave the
+component hidden and restore the previously associated field’s state. Correcting those
+references lets it recover. Invalid proximity stops instead use the default
+stops. The field remains available in either case.
+
+On disconnection or reassociation, the component removes its field listeners,
+static description reference, generated counter, and notification fallbacks,
+and restores the authored counter/progress state. It disconnects its mutation
+observer when removed from the document.
 
 ## Browser support
 
